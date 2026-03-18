@@ -1,0 +1,178 @@
+================================================================================
+  NOOBMARINE — How to Run
+================================================================================
+
+PREREQUISITES:
+  - Node.js v16 or higher (https://nodejs.org)
+  - npm (comes with Node.js)
+
+================================================================================
+INSTALL & RUN
+================================================================================
+
+  1. Open a terminal / command prompt
+  2. Navigate to the project folder:
+
+       cd Noobmarine
+
+  3. Install dependencies:
+
+       npm install
+
+  4. Start the server:
+
+       node server.js
+
+     Or:
+
+       npm start
+
+  5. The console will print the server URLs:
+
+       Captain : http://localhost:3000
+       Crew    : http://192.168.x.x:3000
+
+================================================================================
+ACCESSING THE GAME
+================================================================================
+
+  CAPTAIN (host device):
+    Open http://localhost:3000 in any browser.
+
+  CREW (other devices on same WiFi):
+    Open http://<SERVER_IP>:3000/crew.html
+    Or scan the QR code shown on the captain's screen.
+
+  CONTROLS REFERENCE:
+    Open http://localhost:3000/controls.html
+
+================================================================================
+CUSTOM PORT
+================================================================================
+
+  Default port is 3000. To change it:
+
+    PORT=8080 node server.js
+
+  Or on Windows:
+
+    set PORT=8080 && node server.js
+
+================================================================================
+PLATFORM-SPECIFIC NOTES
+================================================================================
+
+  macOS:
+    - Node.js: brew install node (or download from nodejs.org)
+    - Run from Terminal
+    - Firewall may prompt to allow incoming connections — click Allow
+
+  Windows:
+    - Node.js: download installer from nodejs.org
+    - Run from Command Prompt or PowerShell
+    - Windows Firewall may block the port — allow Node.js through firewall
+    - Use ipconfig to find your local IP if needed
+
+  Linux:
+    - Node.js: sudo apt install nodejs npm (Ubuntu/Debian)
+               or: sudo dnf install nodejs (Fedora)
+    - Check firewall: sudo ufw allow 3000
+
+  iOS (crew device):
+    - Scan QR code with camera app — opens in Safari
+    - For best experience: Share > Add to Home Screen (runs as fullscreen PWA)
+    - No app install needed
+
+  Android (crew device):
+    - Scan QR code with camera app — opens in Chrome
+    - Chrome may show "Add to Home Screen" banner — tap to install as PWA
+    - Or: Chrome menu > Add to Home Screen
+
+  Chromebook:
+    - Open Chrome, navigate to the crew URL
+    - Works same as desktop Chrome
+
+================================================================================
+NETWORK REQUIREMENTS
+================================================================================
+
+  - All devices must be on the SAME WiFi network
+  - No internet required — everything runs locally
+  - The server device's IP must be reachable from crew devices
+  - Common issues:
+      * Guest WiFi networks often isolate devices — use a private network
+      * VPNs can interfere — disconnect VPN on the server device
+      * Corporate/school networks may block WebSocket connections
+
+================================================================================
+FINDING YOUR LOCAL IP
+================================================================================
+
+  macOS:
+    ifconfig | grep "inet " | grep -v 127.0.0.1
+
+  Windows:
+    ipconfig | findstr IPv4
+
+  Linux:
+    hostname -I
+
+  The server also prints the detected IP on startup.
+
+================================================================================
+DEPLOYING ONLINE (optional)
+================================================================================
+
+  The project works on any Node.js hosting platform:
+
+  Render.com (free tier):
+    1. Push code to GitHub
+    2. render.com > New Web Service > Connect repo
+    3. Build Command: npm install
+    4. Start Command: npm start
+    5. Instance Type: Free
+    6. Deploy — get a public URL
+
+  Railway.app:
+    1. Connect GitHub repo
+    2. Auto-detects Node.js
+    3. Deploys automatically
+
+  Fly.io:
+    1. flyctl launch
+    2. flyctl deploy
+
+  The server already reads process.env.PORT so it works on all platforms
+  without code changes.
+
+================================================================================
+PROJECT STRUCTURE (for developers)
+================================================================================
+
+  Noobmarine/
+  ├── server.js           # HTTP + WebSocket server (game logic)
+  ├── package.json        # npm config (single dependency: ws)
+  ├── context.txt         # Full game architecture documentation
+  ├── howToRun.txt        # This file
+  └── public/             # Static files served to browsers
+      ├── index.html      # Landing page
+      ├── captain.html    # Captain's interface
+      ├── crew.html    # Crew's interface
+      ├── controls.html   # Control type reference
+      ├── manifest.json   # PWA manifest
+      ├── sw.js           # Service Worker
+      ├── css/            # Stylesheets
+      ├── js/             # Client-side JavaScript
+      ├── sounds/         # Audio files
+      └── assets/         # Images (logo)
+
+================================================================================
+DEPENDENCIES
+================================================================================
+
+  Production:
+    ws ^8.18.0    WebSocket library for Node.js
+
+  That's it. No build tools, no bundlers, no frameworks.
+
+================================================================================

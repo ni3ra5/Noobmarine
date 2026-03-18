@@ -1,0 +1,302 @@
+/* ══════════════════════════════════════════════
+   NOOBMARINE — GLOBAL THEME
+   Cold War submarine / CRT terminal aesthetic
+   ══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+:root {
+  --bg:          #000D08;
+  --bg-panel:    #001A0E;
+  --bg-raised:   #002A15;
+  --green:       #00FF88;
+  --green-dim:   #CCFFEE;
+  --green-mid:   #00BB66;
+  --green-dark:  #005533;
+  --green-glow:  rgba(0, 255, 136, 0.25);
+  --amber:       #FFAA00;
+  --amber-dim:   #996600;
+  --red:         #FF3300;
+  --red-dim:     #661100;
+  --border:      #00AA44;
+  --border-dim:  #004422;
+  --text-main:   #00FF88;
+  --text-dim:    #CCFFEE;
+  --text-muted:  #007744;
+  --shadow-glow: 0 0 8px rgba(0, 255, 136, 0.4);
+  --shadow-hard: 0 0 2px rgba(0, 255, 136, 0.8);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── CRT scanlines overlay ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 2px,
+    rgba(0, 0, 0, 0.12) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* ── Vignette ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 55%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  pointer-events: none;
+  z-index: 9998;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* ── Typography ── */
+h1, h2, h3 {
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+h1 { font-size: clamp(1.4rem, 4vw, 2.2rem); color: var(--green); text-shadow: var(--shadow-glow); }
+h2 { font-size: clamp(1rem, 3vw, 1.4rem); color: var(--green-dim); }
+h3 { font-size: 0.85rem; color: var(--text-muted); }
+
+p, span, label { font-size: 0.85rem; }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--green);
+  font-family: inherit;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover, .btn:focus {
+  background: var(--green-dark);
+  border-color: var(--green);
+  box-shadow: var(--shadow-glow);
+  outline: none;
+}
+
+.btn:active {
+  background: var(--green-mid);
+  color: var(--bg);
+}
+
+.btn.primary {
+  border-color: var(--green);
+  color: var(--green);
+  box-shadow: var(--shadow-hard);
+}
+
+.btn.danger {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Input ── */
+input[type="text"] {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  color: var(--green);
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  outline: none;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+input[type="text"]:focus {
+  border-color: var(--green);
+  box-shadow: var(--shadow-glow);
+}
+
+input[type="text"]::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Panel / card ── */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-dim);
+  padding: 16px;
+  position: relative;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+/* ── Divider ── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-dim);
+  margin: 12px 0;
+}
+
+/* ── Health bar ── */
+.health-bar-container {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  height: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.health-bar-fill {
+  height: 100%;
+  background: var(--green);
+  transition: width 0.6s ease, background 0.4s;
+  box-shadow: 0 0 6px var(--green);
+}
+
+.health-bar-fill.warning { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.health-bar-fill.critical { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+/* ── Flash animations ── */
+@keyframes flash-green {
+  0%, 100% { opacity: 1; outline: 2px solid transparent; }
+  50% { opacity: 0.85; outline: 2px solid var(--green); outline-offset: -2px; }
+}
+
+@keyframes flash-red {
+  0%, 100% { opacity: 1; outline: 2px solid transparent; }
+  50% { opacity: 0.7; outline: 2px solid var(--red); outline-offset: -2px; }
+}
+
+@keyframes flash-amber {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes slide-in {
+  from { transform: translateY(-6px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.blink { animation: blink 1s step-end infinite; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--green-dark); }
+
+/* ── Corner decoration ── */
+.corner-box {
+  position: relative;
+  border: 1px solid var(--border-dim);
+  padding: 12px;
+}
+.corner-box::before, .corner-box::after {
+  content: '◆';
+  position: absolute;
+  top: -8px;
+  font-size: 10px;
+  color: var(--border);
+  background: var(--bg);
+  padding: 0 4px;
+}
+.corner-box::before { left: 10px; }
+.corner-box::after  { right: 10px; }
+
+/* ── Status dot ── */
+.status-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 4px var(--green);
+  margin-right: 6px;
+}
+.status-dot.amber { background: var(--amber); box-shadow: 0 0 4px var(--amber); }
+.status-dot.red   { background: var(--red);   box-shadow: 0 0 4px var(--red);   }
+
+/* ── Screen overlay messages ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 13, 8, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  text-align: center;
+  padding: 24px;
+}
+
+.overlay.hidden { display: none; }
+
+.overlay h1 { font-size: clamp(1.8rem, 6vw, 3rem); margin-bottom: 16px; }
+.overlay p  { color: var(--text-dim); margin-bottom: 24px; font-size: 1rem; }
+
+/* ── Utility ── */
+.hidden { display: none !important; }
+.uppercase { text-transform: uppercase; }
+.muted { color: var(--text-muted); }
+.dim   { color: var(--green-dim); }
+.amber { color: var(--amber); }
+.red   { color: var(--red); }
+.center { text-align: center; }
+.flex-row { display: flex; align-items: center; gap: 8px; }
+.flex-col { display: flex; flex-direction: column; gap: 8px; }
+.gap-4  { gap: 4px; }
+.gap-8  { gap: 8px; }
+.gap-16 { gap: 16px; }
+.mb-8   { margin-bottom: 8px; }
+.mb-16  { margin-bottom: 16px; }
+.w-full { width: 100%; }

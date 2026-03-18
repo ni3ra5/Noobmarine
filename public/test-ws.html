@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><title>Fix Cache</title></head>
+<body style="background:#000;color:#0f0;font-family:monospace;padding:20px;">
+<h2>Clearing Cache & Service Workers...</h2>
+<div id="log"></div>
+<script>
+function log(msg) { document.getElementById('log').innerHTML += msg + '<br>'; }
+
+// Nuke ALL service workers
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    log('Found ' + regs.length + ' service workers');
+    regs.forEach(r => { r.unregister(); log('Unregistered: ' + r.scope); });
+  });
+}
+
+// Nuke ALL caches
+caches.keys().then(keys => {
+  log('Found ' + keys.length + ' caches');
+  keys.forEach(k => { caches.delete(k); log('Deleted cache: ' + k); });
+});
+
+// Test WS
+setTimeout(() => {
+  log('---');
+  log('Testing WebSocket...');
+  const ws = new WebSocket('ws://' + location.host);
+  ws.onopen = () => {
+    log('✅ WS CONNECTED!');
+    log('---');
+    log('Cache cleared! Now go to:');
+    log('<a href="/crew.html" style="color:#0f0;font-size:1.2em;">CLICK HERE → crew.html</a>');
+  };
+  ws.onclose = (e) => { log('❌ WS CLOSED: ' + e.code); };
+  ws.onerror = () => { log('⚠️ WS ERROR'); };
+}, 1000);
+</script>
+</body>
+</html>

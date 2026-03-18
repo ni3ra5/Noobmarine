@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>NOOBMARINE — CREW STATION</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#000d08">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/crew.css">
+</head>
+<body>
+
+  <!-- Header strip -->
+  <div class="crew-header" id="crew-header">
+    <div class="crew-id-badge" id="crew-id-badge">CREW</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="round-status">
+        <span id="round-info">STANDBY</span>
+        <span>&nbsp;|&nbsp;</span>
+        <span class="timer-inline" id="header-timer">—</span>
+      </div>
+      <span class="conn-dot offline" id="conn-dot"></span>
+      <button class="refresh-btn" id="btn-refresh" title="Refresh">&#x21BB;</button>
+    </div>
+  </div>
+
+  <!-- Name input screen -->
+  <div id="crew-name-screen">
+    <div style="font-size:1.4rem;color:var(--green);text-shadow:var(--shadow-glow);margin-bottom:4px;">NOOBMARINE</div>
+    <div style="font-size:0.65rem;color:var(--text-muted);letter-spacing:0.15em;margin-bottom:24px;">CREW STATION</div>
+    <div style="font-size:0.7rem;color:var(--text-muted);letter-spacing:0.2em;margin-bottom:12px;">ENTER YOUR CALLSIGN</div>
+    <input type="text" id="name-input" placeholder="YOUR NAME" maxlength="12"
+      style="width:200px;padding:10px;font-size:1rem;text-align:center;background:var(--bg-raised);border:1px solid var(--border);color:var(--green);font-family:inherit;letter-spacing:0.1em;text-transform:uppercase;">
+    <button class="btn primary" id="btn-join-crew" style="margin-top:12px;padding:12px 32px;font-size:0.9rem;letter-spacing:0.15em;">
+      JOIN CREW
+    </button>
+    <div style="margin-top:16px;font-size:0.6rem;color:var(--text-muted);">
+      <span id="name-screen-status">CONNECTED TO VESSEL</span>
+    </div>
+    <a href="/" style="margin-top:12px;font-size:0.55rem;color:var(--text-muted);text-decoration:none;letter-spacing:0.1em;">← BACK TO HOME</a>
+  </div>
+
+  <!-- Lobby waiting screen -->
+  <div id="crew-lobby" class="hidden">
+    <div class="big-id" id="lobby-crew-id">—</div>
+    <p class="waiting-text">AWAITING MISSION BRIEFING</p>
+    <p class="muted" style="font-size:0.7rem;margin-top:8px;">
+      Listen for the Captain's orders.<br>When the mission starts, your control panel will appear.
+    </p>
+    <div style="margin-top:16px;font-size:0.65rem;color:var(--text-muted);">
+      <span class="status-dot" style="animation:blink 1s step-end infinite"></span>
+      <span id="lobby-status">CONNECTED TO VESSEL</span>
+    </div>
+  </div>
+
+  <!-- Control grid (hidden until game starts) -->
+  <div id="control-grid" class="hidden"></div>
+
+  <!-- Round end notice -->
+  <div id="round-notice"></div>
+
+  <!-- Crew round-end overlay -->
+  <div id="crew-round-end" class="hidden"></div>
+
+  <!-- Crew level-complete overlay (intermission) -->
+  <div id="crew-level-complete" class="hidden">
+    <div class="crew-intermission-title" id="crew-intermission-title">LEVEL COMPLETE</div>
+    <div class="crew-intermission-next" id="crew-intermission-next">NEXT: LEVEL 2</div>
+    <div class="crew-intermission-box">
+      <div class="crew-intermission-label">STATUS</div>
+      <div class="crew-intermission-status">ALL SYSTEMS NOMINAL</div>
+    </div>
+    <div class="crew-intermission-waiting">AWAITING CAPTAIN'S ORDERS</div>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast"></div>
+
+  <script src="/js/socket.js?v=21"></script>
+  <script src="/js/game-data.js?v=21"></script>
+  <script src="/js/audio.js?v=21"></script>
+  <script src="/js/controls.js?v=21"></script>
+  <script src="/js/crew.js?v=21"></script>
+  <script>
+    // Unregister all service workers and clear caches
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(r => r.unregister());
+      });
+      caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+    }
+  </script>
+</body>
+</html>

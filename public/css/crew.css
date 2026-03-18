@@ -1,0 +1,1016 @@
+/* ══════════════════════════════════════════════
+   NOOBMARINE — CREW CONTROL PANEL STYLES
+   Cramped, overwhelming, industrial by design.
+   ══════════════════════════════════════════════ */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  background: var(--bg-panel);
+}
+
+/* ── Header strip ── */
+.crew-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  padding-top: calc(6px + env(safe-area-inset-top, 0px));
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-dim);
+  flex-shrink: 0;
+  min-height: 38px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.crew-id-badge {
+  font-size: 0.75rem;
+  color: var(--amber);
+  letter-spacing: 0.15em;
+}
+
+.round-status {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-align: right;
+}
+
+.round-status .timer-inline {
+  color: var(--amber);
+  font-size: 0.85rem;
+}
+
+.round-status .timer-inline.critical {
+  color: var(--red);
+  animation: blink 0.5s step-end infinite;
+}
+
+/* ── Name input screen ── */
+#crew-name-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+/* ── Lobby waiting screen ── */
+#crew-lobby {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+#crew-lobby .big-id {
+  font-size: 2rem;
+  color: var(--amber);
+  text-shadow: 0 0 12px var(--amber);
+}
+
+#crew-lobby .waiting-text {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* ── Control grid ── */
+#control-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: minmax(160px, auto);
+  align-content: start;
+  gap: 0;
+  background: var(--bg-panel);
+  padding: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  overflow-y: auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+/* ── Wide controls span 2 columns (not full row) ── */
+.ctrl.ctrl-wide {
+  grid-column: span 2;
+  min-height: 240px;
+  overflow: visible;
+}
+
+/* ── Individual control cell ── */
+.ctrl {
+  background: var(--bg-panel);
+  padding: 12px 10px 6px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-dim);
+}
+
+.ctrl::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-dim), transparent);
+}
+
+/* Success flash */
+.ctrl.control-success { animation: flash-green 1.2s ease; }
+/* Error flash */
+.ctrl.control-error { animation: flash-red 0.6s ease; }
+
+/* ── Control label ── */
+.ctrl-label {
+  font-size: 0.72rem;
+  color: #fff;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  border-bottom: 1px solid var(--border-dim);
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  word-break: break-word;
+  flex-shrink: 0;
+}
+
+/* ── Control body ── */
+.ctrl-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+/* ── Value display (above interactive elements) ── */
+.ctrl-value-display {
+  font-size: 0.8rem;
+  color: var(--green);
+  text-shadow: 0 0 6px var(--green);
+  letter-spacing: 0.12em;
+  text-align: center;
+  min-height: 20px;
+  flex-shrink: 0;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border-dim);
+  margin-bottom: 4px;
+  width: 100%;
+  background: var(--bg-raised);
+  line-height: 1.2;
+  order: -1;
+}
+
+/* ════════════════════════════════════════
+   CONTROL TYPE STYLES
+   ════════════════════════════════════════ */
+
+/* ── 1. Toggle Switch ── */
+.toggle-track {
+  width: 64px;
+  height: 32px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+
+.toggle-track.on {
+  background: var(--green-dark);
+  border-color: var(--green);
+  box-shadow: 0 0 6px var(--green-glow);
+}
+
+.toggle-thumb {
+  position: absolute;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  background: var(--border);
+  border-radius: 1px;
+  transition: left 0.15s, background 0.2s;
+  z-index: 1;
+}
+
+.toggle-track.on .toggle-thumb {
+  left: 37px;
+  background: var(--green);
+}
+
+.toggle-label-off,
+.toggle-label-on {
+  position: absolute;
+  font-size: 0.55rem;
+  font-family: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.toggle-label-off { left: 34px; color: var(--text-muted); }
+.toggle-label-on  { left: 8px;  color: var(--green); opacity: 0; }
+.toggle-track.on .toggle-label-on  { opacity: 1; }
+.toggle-track.on .toggle-label-off { opacity: 0; }
+
+/* ── 2. Button ── */
+.big-btn {
+  padding: 10px 16px;
+  min-height: 40px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  color: var(--green-dim);
+  font-family: inherit;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.1s;
+  width: 100%;
+}
+
+.big-btn:active,
+.big-btn.pressed {
+  background: var(--green-dark);
+  color: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 0 8px var(--green-glow);
+  transform: scale(0.97);
+}
+
+/* ── 3. Dial ── */
+.ctrl-dial .ctrl-body { padding: 2px; }
+
+.dial-outer {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  border-radius: 50%;
+  border: 1px solid var(--border-dim);
+  background: var(--bg-raised);
+  touch-action: none;
+  cursor: pointer;
+}
+
+.dial-knob {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: radial-gradient(circle at 35% 35%, var(--bg-raised), #000);
+  position: relative;
+  transition: border-color 0.15s;
+}
+
+/* dial knob no longer highlights on active — crew shouldn't see task hints */
+
+.dial-pointer {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  width: 2px;
+  height: 14px;
+  background: var(--green);
+  transform: translateX(-50%);
+  border-radius: 1px;
+  box-shadow: 0 0 4px var(--green);
+}
+
+.dial-ticks {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.dial-tick {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 4px;
+  background: var(--green-dark);
+  margin-left: -1px;
+  transform-origin: center 0;
+}
+
+/* ── 4. Horizontal Slider ── */
+.ctrl-h-slider .ctrl-body { width: 100%; padding: 0 2px; }
+
+.h-slider-track {
+  width: 100%;
+  height: 28px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: 1px;
+  position: relative;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.h-slider-fill {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  background: var(--green-dark);
+  border-right: 2px solid var(--green);
+  transition: width 0.05s;
+  box-shadow: 2px 0 6px var(--green-glow);
+}
+
+.h-slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: 24px;
+  height: 26px;
+  background: var(--green);
+  border-radius: 1px;
+  transform: translate(-50%, -50%);
+  transition: left 0.05s;
+  box-shadow: 0 0 4px var(--green);
+}
+
+/* ── 5. Vertical Slider ── */
+.ctrl-v-slider .ctrl-body {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.v-slider-track {
+  width: 28px;
+  height: 80px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: 1px;
+  position: relative;
+  cursor: pointer;
+  touch-action: none;
+  flex-shrink: 0;
+}
+
+.v-slider-fill {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: var(--green-dark);
+  border-top: 2px solid var(--green);
+  transition: height 0.05s;
+  box-shadow: 0 -2px 6px var(--green-glow);
+}
+
+.v-slider-thumb {
+  position: absolute;
+  left: 50%;
+  width: 26px;
+  height: 18px;
+  background: var(--green);
+  border-radius: 1px;
+  transform: translate(-50%, 50%);
+  transition: bottom 0.05s;
+  box-shadow: 0 0 4px var(--green);
+}
+
+/* ── 6. Multi-Slider ── */
+.eq-container {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  height: 100px;
+  width: 100%;
+  justify-content: center;
+  padding: 0 8px;
+}
+
+.eq-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.eq-track {
+  width: 24px;
+  height: 80px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  position: relative;
+  cursor: pointer;
+  touch-action: none;
+  border-radius: 1px;
+}
+
+.eq-fill {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: var(--green-dark);
+  border-top: 1px solid var(--green);
+  transition: height 0.05s;
+}
+
+.eq-thumb {
+  position: absolute;
+  left: 50%;
+  width: 22px;
+  height: 12px;
+  background: var(--green);
+  transform: translate(-50%, 50%);
+  transition: bottom 0.05s;
+  box-shadow: 0 0 4px var(--green);
+  border-radius: 1px;
+}
+
+.eq-bar-label {
+  font-size: 0.7rem;
+  color: var(--green);
+  text-shadow: 0 0 4px var(--green-glow);
+}
+
+/* ── 7. Number Wheel (Mechanical Drum) ── */
+.drum-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.drum {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  padding: 0 4px;
+  touch-action: none;
+  cursor: ns-resize;
+  min-width: 44px;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Gradient overlay to show peek-behind effect */
+.drum::before,
+.drum::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 14px;
+  pointer-events: none;
+  z-index: 1;
+}
+.drum::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--bg-raised) 20%, transparent);
+}
+.drum::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--bg-raised) 20%, transparent);
+}
+
+.drum-peek {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  opacity: 0.3;
+  line-height: 1;
+  padding: 4px 0;
+  text-align: center;
+  width: 32px;
+  user-select: none;
+}
+
+.drum-display {
+  font-size: 1.6rem;
+  color: var(--green);
+  text-shadow: var(--shadow-hard);
+  line-height: 1;
+  width: 32px;
+  text-align: center;
+  padding: 6px 0;
+  border-top: 1px solid var(--border-dim);
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.drum-sep {
+  color: var(--green-dark);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* ── 8. Stepper ── */
+.stepper-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stepper-btn {
+  width: 38px;
+  height: 38px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  color: var(--green);
+  font-size: 1.1rem;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+  flex-shrink: 0;
+}
+
+.stepper-btn:active {
+  background: var(--green-dark);
+  border-color: var(--green);
+}
+
+.stepper-display {
+  font-size: 1.4rem;
+  color: var(--green);
+  min-width: 32px;
+  text-align: center;
+  text-shadow: var(--shadow-hard);
+  border: 1px solid var(--border-dim);
+  padding: 2px 6px;
+  background: var(--bg-raised);
+}
+
+/* ── 9. Button Sequence ── */
+.seq-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.seq-progress {
+  font-size: 0.55rem;
+  color: var(--amber);
+  letter-spacing: 0.08em;
+  min-height: 14px;
+  text-align: center;
+}
+
+.seq-reset-btn {
+  background: none;
+  border: 1px solid var(--border-dim);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 2px;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+.seq-reset-btn:active {
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+.seq-pad {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  width: 100%;
+}
+
+.seq-btn {
+  height: 36px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  color: var(--green-dim);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.seq-btn:active {
+  background: var(--green-dark);
+  color: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 0 4px var(--green-glow);
+}
+
+/* ── 10. Switch Sequence ── */
+.sw-seq-progress {
+  font-size: 0.5rem;
+  color: var(--amber);
+  letter-spacing: 0.05em;
+  text-align: center;
+  min-height: 12px;
+}
+
+.sw-seq-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  width: 100%;
+}
+
+.sw-seq-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.sw-seq-label {
+  font-size: 0.5rem;
+  color: var(--text-muted);
+}
+
+.sw-seq-toggle {
+  width: 28px;
+  height: 40px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s;
+}
+
+.sw-seq-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 10px;
+  background: var(--border);
+  border-radius: 1px;
+  transition: top 0.15s, background 0.15s;
+}
+
+.sw-seq-toggle.on {
+  background: var(--green-dark);
+  border-color: var(--green);
+  box-shadow: 0 0 4px var(--green-glow);
+}
+
+.sw-seq-toggle.on::after {
+  top: 17px;
+  background: var(--green);
+}
+
+/* ── 11. Ring ── */
+.ring-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.ring-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.ring-bg {
+  fill: none;
+  stroke: var(--bg-raised);
+  stroke-width: 8;
+}
+
+.ring-fill {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 8;
+  stroke-linecap: butt;
+  filter: drop-shadow(0 0 3px var(--green));
+  transition: stroke-dashoffset 0.1s;
+}
+
+.ring-value-inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.65rem;
+  color: var(--green);
+  text-shadow: var(--shadow-hard);
+  pointer-events: none;
+}
+
+/* ── Crew round-end overlay ── */
+#crew-round-end {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 13, 8, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 24px;
+  text-align: center;
+  gap: 12px;
+}
+
+#crew-round-end.hidden { display: none; }
+
+.sre-title {
+  font-size: 1.4rem;
+  text-shadow: 0 0 12px currentColor;
+}
+
+.sre-hp {
+  font-size: 0.9rem;
+}
+
+.sre-missed {
+  font-size: 0.85rem;
+  color: var(--red);
+}
+
+.sre-standby {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  margin-top: 8px;
+  animation: blink 1.5s step-end infinite;
+}
+
+/* ── Crew level-complete overlay (intermission) ── */
+#crew-level-complete {
+  position: fixed;
+  inset: 0;
+  background: #000d08;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 24px;
+  text-align: center;
+  gap: 8px;
+}
+
+#crew-level-complete.hidden { display: none; }
+
+.crew-intermission-title {
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  color: var(--green);
+  text-shadow: 0 0 30px var(--green);
+  letter-spacing: 0.15em;
+}
+
+.crew-intermission-next {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  margin-bottom: 24px;
+}
+
+.crew-intermission-box {
+  width: 100%;
+  max-width: 300px;
+  padding: 16px 20px;
+  border: 1px solid var(--border-dim);
+  background: rgba(0, 26, 14, 0.6);
+}
+
+.crew-intermission-label {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  margin-bottom: 10px;
+}
+
+.crew-intermission-status {
+  font-size: 0.9rem;
+  color: var(--green);
+  text-shadow: 0 0 8px var(--green);
+}
+
+.crew-intermission-waiting {
+  margin-top: 24px;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.3em;
+  animation: blink 1.5s step-end infinite;
+}
+
+/* ── Notification toast ── */
+#toast {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  color: var(--green);
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  z-index: 999;
+  transition: transform 0.3s ease;
+  text-align: center;
+  max-width: 280px;
+}
+
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.success { border-color: var(--green); color: var(--green); }
+#toast.warning { border-color: var(--amber); color: var(--amber); }
+
+/* ── Round end notice ── */
+#round-notice {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: rgba(0,13,8,0.92);
+  border-bottom: 1px solid var(--border-dim);
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+  z-index: 800;
+  display: none;
+}
+
+#round-notice.show { display: block; }
+
+/* ── Refresh button ── */
+.refresh-btn {
+  background: none;
+  border: 1px solid var(--border-dim);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 2px;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+.refresh-btn:active {
+  color: var(--green);
+  border-color: var(--green);
+}
+
+/* ── Connection status dot ── */
+.conn-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.conn-dot.online {
+  background: var(--green);
+  box-shadow: 0 0 4px var(--green);
+}
+.conn-dot.offline {
+  background: var(--red);
+  box-shadow: 0 0 4px var(--red);
+  animation: blink 1s step-end infinite;
+}
+
+/* ── Completed control (still interactable for task revert) ── */
+.ctrl.control-done {
+  opacity: 0.7;
+  border-color: var(--green-dark) !important;
+}
+
+.ctrl.control-done::before {
+  content: '✓ DONE';
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  font-size: 0.5rem;
+  color: var(--green);
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Disable CRT overlays on crew page for mobile performance ── */
+body::after,
+body::before {
+  display: none !important;
+}
+
+/* ── iOS viewport fullscreen workaround ── */
+html.ios-fullscreen,
+html.ios-fullscreen body {
+  position: fixed;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════
+   NEW CONTROL TYPE STYLES (12-30)
+   ═══════════════════════════════════════ */
+
+/* Keypad 3x3 grid */
+.keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 100%; }
+
+/* Directional pad */
+.dir-pad { display: grid; grid-template-columns: repeat(3, 36px); grid-template-rows: repeat(3, 36px); gap: 3px; justify-content: center; }
+.dir-btn { background: var(--bg-raised); border: 1px solid var(--border); color: var(--green-dim); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; transition: all 0.1s; border-radius: 2px; }
+.dir-btn:active, .dir-btn.selected { background: var(--green-dark); color: var(--green); border-color: var(--green); box-shadow: 0 0 4px var(--green-glow); }
+.dir-up { grid-column: 2; grid-row: 1; }
+.dir-left { grid-column: 1; grid-row: 2; }
+.dir-right { grid-column: 3; grid-row: 2; }
+.dir-down { grid-column: 2; grid-row: 3; }
+
+/* Tap counter */
+.tap-count { font-size: 1.3rem; color: var(--green); text-shadow: var(--shadow-hard); line-height: 1; }
+
+/* Color buttons */
+.color-row { display: flex; gap: 10px; justify-content: center; }
+.color-btn { width: 36px; height: 36px; border: 2px solid transparent; border-radius: 50%; cursor: pointer; font-size: 0.7rem; font-family: inherit; color: #fff; font-weight: bold; transition: all 0.1s; }
+.color-btn.selected { border-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.4); transform: scale(1.15); }
+
+/* Level row */
+.level-row { display: flex; gap: 6px; justify-content: center; }
+.level-btn { width: 36px; height: 36px; background: var(--bg-raised); border: 1px solid var(--border); color: var(--green-dim); font-size: 0.9rem; font-family: inherit; cursor: pointer; transition: all 0.1s; }
+.level-btn:active, .level-btn.selected { background: var(--green-dark); color: var(--green); border-color: var(--green); box-shadow: 0 0 4px var(--green-glow); }
+
+/* Compass 3x3 */
+.compass-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; width: 100%; max-width: 140px; }
+.compass-btn { background: var(--bg-raised); border: 1px solid var(--border-dim); color: var(--green-dim); font-size: 0.65rem; padding: 6px 2px; border-radius: 2px; font-family: inherit; cursor: pointer; text-align: center; }
+.compass-btn:active, .compass-btn.selected { background: var(--green-dark); color: var(--green); border-color: var(--green); }
+
+/* Clock 4x3 grid */
+.clock-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%; max-width: 180px; }
+.clock-btn { background: var(--bg-raised); border: 1px solid var(--border-dim); color: var(--green-dim); font-size: 0.75rem; padding: 6px 2px; border-radius: 2px; font-family: inherit; cursor: pointer; text-align: center; }
+.clock-btn:active, .clock-btn.selected { background: var(--green-dark); color: var(--green); border-color: var(--green); }
+
+/* Icon row */
+.icon-row { display: flex; gap: 10px; justify-content: center; }
+.icon-btn { width: 40px; height: 40px; background: var(--bg-raised); border: 1px solid var(--border); color: var(--green-dim); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.1s; }
+.icon-btn:active, .icon-btn.selected { background: var(--green-dark); border-color: var(--green); box-shadow: 0 0 6px var(--green-glow); }
+
+/* Pattern grid 3x3 */
+.pattern-grid { display: grid; grid-template-columns: repeat(3, 30px); gap: 3px; justify-content: center; }
+.pattern-cell { width: 30px; height: 30px; background: var(--bg-raised); border: 1px solid var(--border-dim); cursor: pointer; transition: all 0.1s; }
+.pattern-cell.on { background: var(--green-dark); border-color: var(--green); box-shadow: 0 0 6px var(--green-glow); }
+
+/* Binary row */
+.binary-row { display: flex; gap: 3px; justify-content: center; }
+.binary-bit { width: 24px; height: 28px; background: var(--bg-raised); border: 1px solid var(--border-dim); color: var(--green-dim); font-size: 0.8rem; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.binary-bit.on { background: var(--green-dark); color: var(--green); border-color: var(--green); }
+
+/* Triple stepper */
+.triple-row { display: flex; gap: 8px; justify-content: center; }
+
+/* Symbol grid 2x2 */
+.symbol-grid { display: grid; grid-template-columns: repeat(2, 40px); gap: 4px; justify-content: center; }
+.symbol-cell { width: 40px; height: 40px; background: var(--bg-raised); border: 1px solid var(--border); color: var(--green); font-size: 1.4rem; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.1s; }
+.symbol-cell:active { background: var(--green-dark); }
+
+/* Waveform columns */
+.waveform-cols { display: flex; gap: 4px; justify-content: center; width: 100%; }
+.wf-col { display: flex; flex-direction: column; gap: 2px; }
+.wf-btn { width: 28px; height: 22px; background: var(--bg-raised); border: 1px solid var(--border-dim); color: var(--green-dim); font-size: 0.55rem; font-family: inherit; cursor: pointer; }
+.wf-btn.selected { background: var(--green-dark); color: var(--green); border-color: var(--green); }
+
+/* Combination lock drums */
+.combo-row { display: flex; gap: 6px; justify-content: center; align-items: center; }
+.combo-drum { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.combo-digit { font-size: 1.4rem; color: var(--green); text-shadow: var(--shadow-hard); min-width: 24px; text-align: center; border: 1px solid var(--border-dim); padding: 2px 6px; background: var(--bg-raised); }
+
+/* ── Touch optimization for all interactive elements ── */
+.big-btn, .seq-btn, .stepper-btn, .toggle-track, .dir-btn,
+.level-btn, .clock-btn, .color-btn, .icon-btn, .pattern-cell,
+.binary-bit, .symbol-cell, .compass-btn, .wf-btn, .sw-seq-toggle,
+.seq-reset-btn, .combo-drum .stepper-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}

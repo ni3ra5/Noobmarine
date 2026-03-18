@@ -1,0 +1,12 @@
+{
+  "name": "noobmarine",
+  "version": "1.0.0",
+  "description": "Asymmetric co-op submarine party game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

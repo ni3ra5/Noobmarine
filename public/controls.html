@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOOBMARINE — CONTROLS REFERENCE</title>
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/crew.css">
+  <style>
+    /* Override crew.css body for this page */
+    body {
+      position: static !important;
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 100vh;
+      overflow: auto !important;
+    }
+
+    .controls-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border-dim);
+      background: var(--bg-panel);
+      flex-shrink: 0;
+    }
+
+    .hamburger-btn {
+      background: none;
+      border: 1px solid var(--border-dim);
+      color: var(--green-dim);
+      font-size: 1.1rem;
+      width: 32px; height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: inherit;
+      flex-shrink: 0;
+    }
+    .hamburger-btn:hover { color: var(--green); border-color: var(--green); }
+
+    .controls-header h1 {
+      font-size: 1.2rem;
+      color: var(--green);
+      letter-spacing: 0.2em;
+      text-shadow: var(--shadow-glow);
+      flex: 1;
+    }
+
+    .controls-layout {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      position: relative;
+    }
+
+    /* Names panel — slides over from left */
+    .names-panel {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 260px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(0);
+      transition: transform 0.2s ease;
+      box-shadow: 4px 0 12px rgba(0,0,0,0.5);
+    }
+    .names-panel.collapsed {
+      transform: translateX(-100%);
+      box-shadow: none;
+    }
+    .names-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: var(--bg-raised);
+      border-bottom: 1px solid var(--border-dim);
+      flex-shrink: 0;
+    }
+    .names-panel-header span {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+    }
+    .names-close-btn {
+      background: none;
+      border: 1px solid var(--border-dim);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      width: 22px; height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .names-close-btn:hover { color: var(--red); border-color: var(--red); }
+    .names-content {
+      overflow-y: auto;
+      flex: 1;
+      padding: 4px 0;
+    }
+
+    .names-panel .section-title {
+      font-size: 0.55rem;
+      color: var(--amber);
+      letter-spacing: 0.15em;
+      padding: 8px 14px 4px;
+    }
+
+    .names-panel .name-item {
+      font-size: 0.7rem;
+      color: var(--green-dim);
+      padding: 2px 14px;
+      border-left: 2px solid transparent;
+      cursor: default;
+    }
+
+    .names-panel .name-item:hover {
+      background: var(--bg-raised);
+      border-left-color: var(--green);
+      color: var(--green);
+    }
+
+    /* Controls take full width */
+    .types-panel {
+      overflow-y: auto;
+      padding: 16px;
+      flex: 1;
+    }
+
+    .types-panel h2 {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.2em;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-dim);
+      padding-bottom: 6px;
+    }
+
+    /* Grid of live controls — reuse .ctrl from crew.css */
+    .live-control-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 1px;
+      background: var(--border-dim);
+    }
+
+    /* Each live control gets proper sizing */
+    .live-control-grid .ctrl {
+      min-height: 150px;
+    }
+    .live-control-grid .ctrl.ctrl-wide {
+      grid-column: span 2;
+      min-height: 200px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="controls-header">
+    <button class="hamburger-btn" id="hamburger-btn" title="Control Names">☰</button>
+    <h1>CONTROLS REFERENCE</h1>
+    <a href="/" class="btn" style="font-size:0.7rem;padding:6px 12px;text-decoration:none;">← HOME</a>
+  </div>
+
+  <div class="controls-layout">
+
+    <!-- Left: all control names (collapsible) -->
+    <div class="names-panel collapsed" id="names-panel">
+      <div class="names-panel-header">
+        <span>CONTROL NAMES (100)</span>
+        <button class="names-close-btn" id="names-close">✕</button>
+      </div>
+      <div class="names-content">
+      <div class="section-title">NAVIGATION & PROPULSION</div>
+      <div class="name-item">MAIN BALLAST PUMP</div>
+      <div class="name-item">DIVE PLANE ACTUATOR</div>
+      <div class="name-item">STERN PLANE CONTROL</div>
+      <div class="name-item">RUDDER TRIM ADJUSTER</div>
+      <div class="name-item">PROPULSION DRIVE CONTROL</div>
+      <div class="name-item">SHAFT SPEED REGULATOR</div>
+      <div class="name-item">PORT THRUSTER OUTPUT</div>
+      <div class="name-item">STARBOARD THRUSTER OUTPUT</div>
+      <div class="name-item">EMERGENCY PROPULSION SWITCH</div>
+      <div class="name-item">TRIM TANK VALVE</div>
+
+      <div class="section-title">DEPTH & PRESSURE</div>
+      <div class="name-item">DEPTH PRESSURE GAUGE</div>
+      <div class="name-item">HULL STRESS MONITOR</div>
+      <div class="name-item">CRUSH DEPTH LIMITER</div>
+      <div class="name-item">BUOYANCY CONTROL VALVE</div>
+      <div class="name-item">BALLAST TANK VENT</div>
+      <div class="name-item">FLOOD CONTROL LEVER</div>
+      <div class="name-item">PRESSURE RELIEF VALVE</div>
+      <div class="name-item">SEA CHEST INLET VALVE</div>
+      <div class="name-item">HYDROSTATIC SENSOR OVERRIDE</div>
+      <div class="name-item">VARIABLE BALLAST INJECTOR</div>
+
+      <div class="section-title">POWER & REACTOR</div>
+      <div class="name-item">REACTOR COOLANT VALVE</div>
+      <div class="name-item">CORE TEMPERATURE DIAL</div>
+      <div class="name-item">PRIMARY COOLANT FLOW</div>
+      <div class="name-item">SECONDARY LOOP BYPASS</div>
+      <div class="name-item">REACTOR SCRAM SWITCH</div>
+      <div class="name-item">POWER DISTRIBUTION BOARD</div>
+      <div class="name-item">AUXILIARY POWER BUS</div>
+      <div class="name-item">BATTERY RESERVE TOGGLE</div>
+      <div class="name-item">VOLTAGE REGULATOR DIAL</div>
+      <div class="name-item">EMERGENCY GENERATOR SWITCH</div>
+
+      <div class="section-title">WEAPONS & DEFENSE</div>
+      <div class="name-item">TORPEDO TUBE FLOOD VALVE</div>
+      <div class="name-item">TUBE PRESSURE EQUALIZER</div>
+      <div class="name-item">FIRE CONTROL SELECTOR</div>
+      <div class="name-item">WARHEAD ARMING SWITCH</div>
+      <div class="name-item">COUNTERMEASURE EJECTOR</div>
+      <div class="name-item">DECOY LAUNCH CONTROL</div>
+      <div class="name-item">MINE RELEASE TOGGLE</div>
+      <div class="name-item">TUBE DOOR ACTUATOR</div>
+      <div class="name-item">FIRING SOLUTION LOCK</div>
+      <div class="name-item">WEAPONS BAY PRESSURE</div>
+
+      <div class="section-title">SONAR & SENSORS</div>
+      <div class="name-item">ACTIVE SONAR EMITTER</div>
+      <div class="name-item">PASSIVE SONAR GAIN</div>
+      <div class="name-item">SONAR FREQUENCY DIAL</div>
+      <div class="name-item">HYDROPHONE ARRAY SWITCH</div>
+      <div class="name-item">TARGET TRACKING LOCK</div>
+      <div class="name-item">BEARING RESOLUTION KNOB</div>
+      <div class="name-item">NOISE FILTER LEVEL</div>
+      <div class="name-item">SONAR SWEEP RATE</div>
+      <div class="name-item">ECHO RETURN AMPLIFIER</div>
+      <div class="name-item">TRANSDUCER DEPTH ADJUSTER</div>
+
+      <div class="section-title">LIFE SUPPORT</div>
+      <div class="name-item">OXYGEN PURGE VALVE</div>
+      <div class="name-item">CO2 SCRUBBER CONTROL</div>
+      <div class="name-item">AIR CIRCULATION FAN</div>
+      <div class="name-item">HUMIDITY REGULATOR</div>
+      <div class="name-item">AIR FLOW RATE SLIDER</div>
+      <div class="name-item">ATMOSPHERIC PRESSURE DIAL</div>
+      <div class="name-item">EMERGENCY O2 RELEASE</div>
+      <div class="name-item">NITROGEN PURGE SWITCH</div>
+      <div class="name-item">CARBON FILTER BYPASS</div>
+      <div class="name-item">CABIN PRESSURE EQUALIZER</div>
+
+      <div class="section-title">COMMUNICATIONS</div>
+      <div class="name-item">RADIO FREQUENCY SELECTOR</div>
+      <div class="name-item">ELF TRANSMITTER TOGGLE</div>
+      <div class="name-item">PERISCOPE ANTENNA RAISE</div>
+      <div class="name-item">BURST TRANSMIT CONTROL</div>
+      <div class="name-item">COMM ARRAY POWER SWITCH</div>
+      <div class="name-item">SIGNAL ENCRYPTION KEY</div>
+      <div class="name-item">ACOUSTIC MODEM GAIN</div>
+      <div class="name-item">UHF BAND SELECTOR</div>
+      <div class="name-item">MESSAGE BUFFER FLUSH</div>
+      <div class="name-item">IFF TRANSPONDER TOGGLE</div>
+
+      <div class="section-title">NAVIGATION SYSTEMS</div>
+      <div class="name-item">INERTIAL NAV RESET</div>
+      <div class="name-item">GPS ANTENNA DEPLOY</div>
+      <div class="name-item">CHART TABLE LIGHT</div>
+      <div class="name-item">COURSE CORRECTION DIAL</div>
+      <div class="name-item">SPEED LOG CALIBRATION</div>
+      <div class="name-item">MAGNETIC COMPASS ADJUST</div>
+      <div class="name-item">GYROCOMPASS SYNC</div>
+      <div class="name-item">NAVAID SELECTOR</div>
+      <div class="name-item">WAYPOINT ENTRY DIAL</div>
+      <div class="name-item">DEAD RECKONING OVERRIDE</div>
+
+      <div class="section-title">DAMAGE CONTROL</div>
+      <div class="name-item">FLOOD ALARM ACKNOWLEDGE</div>
+      <div class="name-item">FIRE SUPPRESSION ZONE</div>
+      <div class="name-item">WATERTIGHT DOOR SEAL</div>
+      <div class="name-item">BILGE PUMP SWITCH</div>
+      <div class="name-item">EMERGENCY BLOW VALVE</div>
+      <div class="name-item">DAMAGE CONTROL PANEL RESET</div>
+      <div class="name-item">COMPARTMENT ISOLATE TOGGLE</div>
+      <div class="name-item">HALON SYSTEM ARM</div>
+      <div class="name-item">SMOKE DETECTOR OVERRIDE</div>
+      <div class="name-item">HULL BREACH ALERT SILENCE</div>
+
+      <div class="section-title">MISCELLANEOUS</div>
+      <div class="name-item">PERISCOPE RAISE CONTROL</div>
+      <div class="name-item">MAST RETRACT SWITCH</div>
+      <div class="name-item">EXTERNAL LIGHT TOGGLE</div>
+      <div class="name-item">PHOTONICS MAST PAN</div>
+      <div class="name-item">SAIL PLANE ACTUATOR</div>
+      <div class="name-item">ANCHOR RELEASE CONTROL</div>
+      <div class="name-item">TOWED ARRAY DEPLOY</div>
+      <div class="name-item">KAPSTAN WINCH CONTROL</div>
+      <div class="name-item">DOCKING LIGHT SWITCH</div>
+      <div class="name-item">EMERGENCY BEACON ARM</div>
+      </div><!-- .names-content -->
+    </div>
+
+    <!-- Right: live interactive controls -->
+    <div class="types-panel">
+      <h2>CONTROL TYPES — INTERACTIVE DEMO (11)</h2>
+      <div class="live-control-grid" id="live-controls"></div>
+    </div>
+
+  </div>
+
+  <script src="/js/game-data.js"></script>
+  <script src="/js/controls.js"></script>
+  <script>
+    // Render one of each control type as a live interactive demo
+    const DEMO_CONTROLS = [
+      { controlId: 'demo-toggle',       name: 'TOGGLE SWITCH',      type: 'toggle' },
+      { controlId: 'demo-button',       name: 'ACTION BUTTON',      type: 'button' },
+      { controlId: 'demo-dial',         name: 'ROTARY DIAL',        type: 'dial' },
+      { controlId: 'demo-hslider',      name: 'H-SLIDER',           type: 'h-slider' },
+      { controlId: 'demo-vslider',      name: 'V-SLIDER',           type: 'v-slider' },
+      { controlId: 'demo-number',       name: 'NUMBER WHEEL',       type: 'number-wheel' },
+      { controlId: 'demo-stepper',      name: 'STEPPER',            type: 'stepper' },
+      { controlId: 'demo-ring',         name: 'CHARGE RING',        type: 'ring' },
+      { controlId: 'demo-multislider',  name: 'MULTI-SLIDER',       type: 'multi-slider' },
+      { controlId: 'demo-btnseq',       name: 'BUTTON SEQUENCE',    type: 'btn-sequence' },
+      { controlId: 'demo-swseq',        name: 'SWITCH SEQUENCE',    type: 'sw-sequence' },
+      // New controls (demo only — not yet in game)
+      { controlId: 'demo-keypad',       name: 'CODE ENTRY PAD',     type: 'keypad' },
+      { controlId: 'demo-directional',  name: 'DIRECTION SELECTOR', type: 'directional' },
+      { controlId: 'demo-rapidtap',     name: 'TAP COUNTER',        type: 'rapid-tap' },
+      { controlId: 'demo-levelselect',  name: 'POWER LEVEL',        type: 'level-select' },
+      { controlId: 'demo-compass',      name: 'HEADING SELECTOR',   type: 'compass' },
+      { controlId: 'demo-clockset',     name: 'CLOCK SETTING',      type: 'clock-set' },
+      { controlId: 'demo-valveturn',    name: 'VALVE ROTATION',     type: 'valve-turn' },
+      { controlId: 'demo-combolock',    name: 'COMBINATION LOCK',   type: 'combination-lock' },
+      { controlId: 'demo-finetuner',    name: 'FREQUENCY TUNER',    type: 'fine-tuner' },
+      { controlId: 'demo-dualslider',   name: 'DUAL CHANNEL',       type: 'dual-slider' },
+      { controlId: 'demo-rangeslider',  name: 'RANGE SELECTOR',     type: 'range-slider' },
+    ];
+
+    const IN_GAME_TYPES = ['toggle','button','dial','h-slider','v-slider','multi-slider','number-wheel','stepper','btn-sequence','sw-sequence','ring'];
+
+    const grid = document.getElementById('live-controls');
+    DEMO_CONTROLS.forEach(ctrl => {
+      const instance = createControl(ctrl);
+      instance.setActive(true);
+      // Add badge
+      const badge = document.createElement('div');
+      badge.style.cssText = 'position:absolute;top:3px;right:3px;font-size:0.45rem;letter-spacing:0.08em;padding:1px 4px;border-radius:2px;z-index:2;';
+      if (IN_GAME_TYPES.includes(ctrl.type)) {
+        badge.textContent = 'IN-GAME';
+        badge.style.background = 'var(--green-dark)';
+        badge.style.color = 'var(--green)';
+        badge.style.border = '1px solid var(--green)';
+      } else {
+        badge.textContent = 'DEMO';
+        badge.style.background = 'var(--bg-raised)';
+        badge.style.color = 'var(--amber)';
+        badge.style.border = '1px solid var(--amber-dim)';
+      }
+      instance.el.style.position = 'relative';
+      instance.el.appendChild(badge);
+      grid.appendChild(instance.el);
+    });
+
+    // Hamburger toggle
+    const namesPanel = document.getElementById('names-panel');
+    document.getElementById('hamburger-btn').addEventListener('click', () => {
+      namesPanel.classList.toggle('collapsed');
+    });
+    document.getElementById('names-close').addEventListener('click', () => {
+      namesPanel.classList.add('collapsed');
+    });
+  </script>
+</body>
+</html>

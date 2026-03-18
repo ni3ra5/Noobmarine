@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NOOBMARINE</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#000d08">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="/css/theme.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100dvh;
+      height: 100vh; /* fallback for older browsers */
+      height: 100dvh;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    .lobby-container {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      animation: slide-in 0.4s ease;
+      text-align: center;
+    }
+
+    .logo-img {
+      width: 240px;
+      max-width: 80%;
+      height: auto;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      border: 1px solid var(--border-dim);
+      background: var(--bg-panel);
+      width: 100%;
+    }
+
+    .msg {
+      font-size: 0.78rem;
+      padding: 8px 10px;
+      border: 1px solid;
+      display: none;
+      width: 100%;
+    }
+    .msg.error { border-color: var(--red-dim); color: var(--red); background: rgba(255,51,0,0.06); }
+    .msg.visible { display: block; }
+
+    #btn-captain {
+      padding: 16px 40px;
+      font-size: 1.1rem;
+      letter-spacing: 0.2em;
+      border-color: var(--green);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .lobby-footer {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="lobby-container">
+
+    <img src="/assets/logo.png" alt="NOOBMARINE" class="logo-img">
+    <h1 style="font-size:clamp(1.6rem,5vw,2.5rem);color:var(--green);text-shadow:0 0 12px var(--green);letter-spacing:0.2em;margin:0;">NOOBMARINE</h1>
+    <div class="subtitle">ASYMMETRIC CO-OP SUBMARINE OPERATIONS</div>
+
+    <!-- Connection status -->
+    <div class="status-bar" id="status-bar">
+      <span class="status-dot red" id="conn-dot"></span>
+      <span id="conn-text">CONNECTING TO VESSEL...</span>
+    </div>
+
+    <button class="btn primary" id="btn-captain" style="padding:14px 40px;font-size:1rem;letter-spacing:0.2em;">HOST GAME AS CAPTAIN</button>
+    <div class="msg" id="captain-msg"></div>
+
+    <!-- Active game status -->
+    <div id="game-status" style="width:100%;max-width:360px;margin-top:4px;"></div>
+
+    <a href="/controls.html" style="position:fixed;bottom:12px;right:12px;font-size:0.5rem;color:var(--text-muted);text-decoration:none;letter-spacing:0.08em;border:1px solid var(--border-dim);padding:3px 8px;opacity:0.3;">CONTROLS</a>
+
+    <div class="lobby-footer">
+      NOOBMARINE v1.0 · LOCAL WiFi ONLY · NO INTERNET REQUIRED
+    </div>
+
+  </div>
+
+  <script src="/js/socket.js"></script>
+  <script>
+    const connDot  = document.getElementById('conn-dot');
+    const connText = document.getElementById('conn-text');
+    const btnCaptain = document.getElementById('btn-captain');
+    const captainMsg = document.getElementById('captain-msg');
+
+    function onConn() {
+      connDot.className = 'status-dot';
+      connText.textContent = 'VESSEL ONLINE — READY';
+    }
+    NM.on('_connected', onConn);
+    if (NM.isConnected()) onConn();
+
+    NM.on('_disconnected', () => {
+      connDot.className = 'status-dot red';
+      connText.textContent = 'SIGNAL LOST — RECONNECTING...';
+    });
+
+    NM.on('joined', (msg) => {
+      if (msg.role === 'captain') {
+        window.location.href = '/captain.html';
+      }
+    });
+
+    // Poll game status via HTTP (works even if WS fails)
+    const gameStatus = document.getElementById('game-status');
+    function fetchStatus() {
+      fetch('/api/status').then(r => r.json()).then(s => {
+        if (!gameStatus) return;
+        if (s.active) {
+          gameStatus.innerHTML = `
+            <div style="padding:10px 12px;border:1px solid var(--green-dark);background:var(--bg-raised);">
+              <div style="font-size:0.55rem;color:var(--text-muted);letter-spacing:0.15em;margin-bottom:6px;">GAME IN PROGRESS</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-size:0.85rem;color:var(--green);">${s.sessionName}</div>
+                  <div style="font-size:0.5rem;color:var(--text-muted);">${s.crewCount} crew · ${s.phase}</div>
+                </div>
+                <a href="/crew.html" style="font-size:0.6rem;color:var(--amber);text-decoration:none;letter-spacing:0.1em;padding:6px 12px;border:1px solid var(--amber-dim);">JOIN AS CREW →</a>
+              </div>
+            </div>`;
+        } else {
+          gameStatus.innerHTML = '<div style="font-size:0.6rem;color:var(--text-muted);text-align:center;padding:8px;">No active game</div>';
+        }
+      }).catch(() => {});
+    }
+    fetchStatus();
+    setInterval(fetchStatus, 3000);
+
+    NM.on('error', (msg) => {
+      captainMsg.textContent = msg.message;
+      captainMsg.className = 'msg error visible';
+      setTimeout(() => captainMsg.classList.remove('visible'), 3000);
+    });
+
+    btnCaptain.addEventListener('click', () => {
+      NM.send('join_game', { role: 'captain', playerName: 'CAPTAIN' });
+    });
+  </script>
+  <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+================================================================================
+  NOOBMARINE — Game Context Document
+  Version: 1.0 | Last Updated: March 2026
+================================================================================
+
+## WHAT IS NOOBMARINE?
+
+NOOBMARINE is an asymmetric co-op submarine party game for 2-10 players on
+local WiFi. One player is the CAPTAIN (laptop/desktop) who reads task
+instructions aloud. The other 1-9 players are CREW MEMBERS who operate control
+panels on their phones/tablets to complete those tasks before time runs out.
+
+Think "Keep Talking and Nobody Explodes" meets "Spaceteam" — but on a submarine.
+
+================================================================================
+## HOW THE GAME WORKS
+================================================================================
+
+1. Captain opens the game on a laptop → sees a QR code
+2. Crew members scan the QR code on their phones → enter a callsign → join lobby
+3. Captain sees crew cards appear → clicks "LAUNCH MISSION"
+4. Each crew member gets 8 random submarine controls on their phone
+5. Captain sees a list of tasks like "Set CORE TEMPERATURE DIAL to 180°"
+6. Captain reads tasks aloud → crew finds the right control and sets the value
+7. When a crew member sets the correct value, the task marks as DONE
+8. Timer counts down. Unfinished tasks = damage to the submarine (-10 HP each)
+9. If HP > 0, captain starts the next level (shorter timer, new tasks)
+10. Game ends when HP reaches 0 (HULL BREACH)
+
+Key rule: Crew members can NOT see the task instructions — only the captain can.
+Communication is verbal (shouting across the room).
+
+================================================================================
+## TECH STACK
+================================================================================
+
+- Runtime:     Node.js
+- WebSocket:   ws ^8.18.0 (only dependency)
+- Frontend:    Vanilla JavaScript (zero frameworks)
+- Styling:     CSS3 with CSS custom properties (CRT/submarine terminal theme)
+- Audio:       Web Audio API (procedural) + 1 background music MP3
+- PWA:         Service Worker + manifest.json (installable on mobile)
+- QR Codes:    Custom minimal QR generator (qrcode-mini.js, no CDN)
+- Package:     npm (package.json with single "ws" dependency)
+
+NO external CDN, NO React/Vue/Angular, NO build tools, NO bundlers.
+Everything runs on local WiFi — no internet required.
+
+================================================================================
+## FILE STRUCTURE
+================================================================================
+
+Noobmarine/
+├── server.js                 # Node.js HTTP + WebSocket server (game logic)
+├── package.json              # npm config (ws dependency)
+├── context.txt               # This file
+├── sounds/
+│   └── background.mp3        # Background music source
+├── assets/
+│   └── logo.png              # Game logo
+└── public/                   # Static files served by HTTP server
+    ├── index.html            # Landing page (HOST GAME AS CAPTAIN button)
+    ├── captain.html          # Captain's view (lobby + game HUD + task list)
+    ├── crew.html          # Crew's view (name input + control panel)
+    ├── controls.html         # Control type reference/demo page (25 types)
+    ├── manifest.json         # PWA manifest
+    ├── sw.js                 # Service Worker (cache + offline support)
+    ├── icon.svg              # Favicon
+    ├── icon-192.png          # PWA icon 192x192
+    ├── icon-512.png          # PWA icon 512x512
+    ├── css/
+    │   ├── theme.css         # Global CRT theme (colors, fonts, animations)
+    │   ├── captain.css       # Captain-specific styles (HUD, lobby, overlays)
+    │   └── crew.css       # Crew-specific styles (control grid, controls)
+    ├── js/
+    │   ├── socket.js         # WebSocket client wrapper (auto-reconnect, heartbeat)
+    │   ├── game-data.js      # Shared data (empty currently, reserved)
+    │   ├── controls.js       # 25 control type renderers + factory function
+    │   ├── captain.js        # Captain UI logic (lobby, HUD, tasks, overlays)
+    │   ├── crew.js        # Crew UI logic (name input, controls, tasks)
+    │   ├── audio.js          # Procedural audio (beeps, alerts, music)
+    │   └── qrcode-mini.js    # Minimal QR code canvas generator
+    ├── sounds/
+    │   └── background.mp3    # Looping background music (served to clients)
+    └── assets/
+        └── logo.png          # Logo image (served to clients)
+
+================================================================================
+## PAGE URLS
+================================================================================
+
+/                    Landing page. Shows logo + "HOST GAME AS CAPTAIN" button.
+/captain.html        Captain's interface. Lobby (QR + crew cards) → Game view.
+/crew.html        Crew's interface. Name input → Waiting → Control panel.
+/controls.html       Reference page. All 25 control types rendered live.
+/api/info            JSON API. Returns {ip, port} for QR code generation.
+
+================================================================================
+## GAME FLOW (STATE MACHINE)
+================================================================================
+
+  [LOBBY] ──captain joins──> [LOBBY with captain]
+       │                           │
+       │←──crew scans QR──────────│
+       │                           │
+       │──captain clicks START────> [PLAYING]
+                                      │
+                     ┌─tasks done─────│──timer expires──┐
+                     │                                    │
+                     └──────> [LEVEL END] <──────────────┘
+                                  │
+                         HP > 0?──┤──HP ≤ 0──> [GAME OVER]
+                                  │
+                      [LEVEL INTERMISSION]
+                                  │
+                     captain clicks CONTINUE
+                                  │
+                          [PLAYING level+1]
+                              (repeat)
+
+Phases: lobby | playing | level_intermission | gameover
+
+================================================================================
+## CONTROL TYPES (25 total)
+================================================================================
+
+### IN-GAME (11 types — used in actual gameplay):
+ 1. toggle         ON/OFF switch
+ 2. button         Press to activate
+ 3. dial           Rotary knob (0°-315°, 8 positions)
+ 4. h-slider       Horizontal slider (0-100%, steps of 10)
+ 5. v-slider       Vertical slider (0-100%, steps of 10)
+ 6. multi-slider   5 vertical bars (each 1-9)
+ 7. number-wheel   2-digit drum counter (00-99, drag to change)
+ 8. stepper        +/- buttons (1-10)
+ 9. btn-sequence   4-button pad, enter correct order (has reset)
+10. sw-sequence    4 toggle switches, flip in correct order
+11. ring           Circular progress, drag to charge (10-100%)
+
+### DEMO ONLY (14 types — on controls.html, not yet in game):
+12. keypad           3x3 numpad, enter 4-digit code
+13. directional      4-way arrow selector (UP/DOWN/LEFT/RIGHT)
+14. rapid-tap        Tap counter button
+15. color-picker     4 colored circles, pick one (RED/GREEN/BLUE/YELLOW)
+16. level-select     5 level buttons (1-5)
+17. compass          8-direction selector (N/NE/E/SE/S/SW/W/NW)
+18. clock-set        12-hour grid (1-12)
+19. icon-match       4 icon picker (anchor/gear/bolt/hazard)
+20. valve-turn       0-5 turns stepper
+21. color-sequence   4-color tap order with reset
+22. combination-lock 3 rotating digit drums (0-9 each)
+23. fine-tuner       Decimal precision stepper (80.0-120.0, ±0.2)
+24. dual-slider      Two independent horizontal sliders
+25. range-slider     Min/max range with steppers
+
+================================================================================
+## CONTROL NAMES (100 submarine-themed names)
+================================================================================
+
+Controls are assigned random names from 10 categories:
+- Navigation & Propulsion (MAIN BALLAST PUMP, DIVE PLANE ACTUATOR, etc.)
+- Depth & Pressure (DEPTH PRESSURE GAUGE, HULL STRESS MONITOR, etc.)
+- Power & Reactor (REACTOR COOLANT VALVE, CORE TEMPERATURE DIAL, etc.)
+- Weapons & Defense (TORPEDO TUBE FLOOD VALVE, WARHEAD ARMING SWITCH, etc.)
+- Sonar & Sensors (ACTIVE SONAR EMITTER, SONAR FREQUENCY DIAL, etc.)
+- Life Support (OXYGEN PURGE VALVE, CO2 SCRUBBER CONTROL, etc.)
+- Communications (RADIO FREQUENCY SELECTOR, ELF TRANSMITTER TOGGLE, etc.)
+- Navigation Systems (INERTIAL NAV RESET, COURSE CORRECTION DIAL, etc.)
+- Damage Control (FLOOD ALARM ACKNOWLEDGE, WATERTIGHT DOOR SEAL, etc.)
+- Miscellaneous (PERISCOPE RAISE CONTROL, EMERGENCY BEACON ARM, etc.)
+
+Each crew member gets 8 random controls per level (name + type shuffled).
+
+================================================================================
+## WEBSOCKET PROTOCOL
+================================================================================
+
+### Client → Server:
+join_game        {role, playerName, crewId?}     Join as captain or crew
+start_game       {}                                  Captain starts the game
+submit_control   {taskId, value}                     Crew submits control value
+continue_level   {}                                  Captain advances to next level
+end_game         {}                                  Captain ends mission
+kick_player      {crewId}                         Captain kicks crew member
+music_toggle     {on: bool}                          Captain toggles music
+request_tasks    {}                                  Crew requests current tasks
+ping             {}                                  Heartbeat
+
+### Server → Client:
+joined           {role, crewId?, name?}           Join confirmation
+error            {message}                           Error message
+lobby_state      {captainConnected, crews, phase} Room state
+player_joined    {playerName, role, crewId}       New crew joined
+player_left      {crewId, name}                   Crew left (lobby)
+player_disconnected {crewId, name}                Crew offline (mid-game)
+player_rejoined  {crewId, name}                   Crew reconnected
+controls_assigned {crewId, controls[]}             Crew's 8 controls for level
+level_start      {level}                             New level starting
+round_tasks      {tasks[]}                           Crew's tasks for this level
+game_state       {phase, hp, level, timer, tasks, players} Full state snapshot
+timer_tick       {remaining}                         Timer countdown (every 1s)
+task_completed   {taskId, crewId}                 Task marked done
+task_uncompleted {taskId, crewId}                 Task reverted to undone
+level_end        {failedTasks, hpLost, newHp, level} Level results
+level_complete   {level, nextLevel, crews}        Level passed
+game_over        {reason, finalHp}                   Submarine destroyed
+music_toggle     {on: bool}                          Music state broadcast
+kicked           {}                                  You were kicked
+captain_left     {}                                  Captain disconnected
+
+================================================================================
+## LEVEL SCALING
+================================================================================
+
+Timer per level: max(30, 90 - (level-1) * 10) seconds
+  Level 1: 90s
+  Level 2: 80s
+  Level 3: 70s
+  ...
+  Level 7+: 30s (minimum)
+
+Tasks per crew member: min(8, max(2, ceil(16 / crewCount)))
+  1 crew: 8 tasks each
+  2 crew: 8 tasks each
+  3 crew: 6 tasks each
+  4+ crew: 4 tasks each
+  8+ crew: 2 tasks each
+
+HP damage: 10 HP per failed task. Submarine starts at 100 HP.
+
+================================================================================
+## KEY DESIGN DECISIONS
+================================================================================
+
+1. CRT TERMINAL AESTHETIC
+   Dark green (#00FF88) on black (#000D08). Monospace font. Glow effects.
+   Designed to feel like a Cold War submarine control room.
+
+2. NO INTERNET REQUIRED
+   Runs entirely on local WiFi. Server on one device, clients connect directly.
+   No cloud, no accounts, no login. Just run `node server.js` and scan QR.
+
+3. ASYMMETRIC GAMEPLAY
+   Captain sees ALL tasks. Crew sees ONLY their controls.
+   Forces real-world verbal communication (shouting across the room).
+
+4. PROCEDURAL AUDIO
+   All game sounds generated via Web Audio API oscillators.
+   Background music is the only external audio file.
+
+5. PWA SUPPORT
+   Installable on iOS (Add to Home Screen) and Android (install prompt).
+   Service Worker caches assets for offline reliability.
+
+6. CREW REJOIN
+   If a crew member's connection drops mid-game, their slot is preserved.
+   They can reconnect and resume with the same controls and tasks.
+
+7. CAPTAIN = AUTHORITY
+   If captain disconnects, entire game resets. Captain is the game host.
+
+8. VANILLA JAVASCRIPT
+   Zero frameworks. Zero build tools. Single npm dependency (ws).
+   Entire codebase is readable without compilation or transpilation.
+
+================================================================================
+## HOW TO RUN
+================================================================================
+
+1. Install Node.js (any modern version)
+2. cd Noobmarine
+3. npm install
+4. node server.js
+5. Open http://localhost:3000 on captain's laptop
+6. Crew scans QR code shown on captain's screen
+7. Play!
+
+================================================================================
+## CAPTAIN'S HUD (GAME VIEW)
+================================================================================
+
+The captain's game view features a submarine dashboard with:
+- Animated sonar sweep (rotating SVG line with blips)
+- Circular timer ring (countdown with color changes)
+- HP bar (health indicator)
+- 2-column fluctuating readouts (DEPTH, PRESS, REACTOR, O2, TEMP, HDG, SPEED,
+  BALLAST, SONAR, NAV — all decorative, updating every 1.2s)
+- HUD Row 2: depth gauge, compass needle, pressure graph, O2 arc,
+  reactor bar animation, coolant thermometer (all decorative CSS animations)
+- Crew status strip (online/offline indicators per crew member)
+- Scrollable task list with checkboxes
+- Music toggle + End Mission button
+
+All HUD decorations are purely cosmetic — they don't reflect actual game state.
+Only HP bar, timer, and task list are functional.
+
+================================================================================
+END OF CONTEXT DOCUMENT
+================================================================================

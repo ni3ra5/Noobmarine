@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOOBMARINE — CAPTAIN</title>
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/captain.css">
+</head>
+<body>
+
+  <!-- ── LOBBY VIEW ── -->
+  <div id="lobby-view">
+    <div class="lobby-header">
+      <div>
+        <img src="/assets/logo.png" alt="NOOBMARINE" style="height:40px;display:block;">
+        <div class="lobby-title">NOOBMARINE</div>
+        <div class="lobby-sub">CAPTAIN'S BRIDGE — AWAITING CREW</div>
+      </div>
+      <a href="/" class="btn" style="font-size:0.7rem;padding:6px 12px;text-decoration:none;">← BACK</a>
+    </div>
+
+    <div class="lobby-grid">
+      <!-- Left: crew manifest -->
+      <div class="lobby-left">
+        <div class="lobby-section-label">CREW MANIFEST — <span id="lobby-count">0</span> ABOARD</div>
+        <div class="crew-card-grid" id="lobby-crew-grid">
+          <div class="crew-card-empty">Scan the QR code to join the crew</div>
+        </div>
+        <button class="btn primary w-full" id="btn-start-game" disabled>
+          WAITING FOR CREW...
+        </button>
+      </div>
+
+      <!-- Right: QR code + settings -->
+      <div class="lobby-right">
+        <div class="qr-section">
+          <div class="qr-label">SCAN TO JOIN</div>
+          <canvas id="qr-canvas" class="qr-canvas"></canvas>
+          <div class="qr-url" id="crew-url-text">LOADING...</div>
+          <button class="btn url-copy-btn" id="btn-copy-url">COPY URL</button>
+        </div>
+        <div style="width:100%;max-width:260px;margin-top:12px;padding:12px;border:1px solid var(--border-dim);background:var(--bg-panel);">
+          <div style="font-size:0.55rem;color:var(--text-muted);letter-spacing:0.15em;text-align:center;margin-bottom:8px;">LEVEL 1 TIMER</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+            <button class="btn" id="timer-minus" style="padding:6px 14px;font-size:1rem;">−</button>
+            <div id="timer-setting" style="font-size:1.4rem;color:var(--green);text-shadow:0 0 8px var(--green);min-width:50px;text-align:center;">90s</div>
+            <button class="btn" id="timer-plus" style="padding:6px 14px;font-size:1rem;">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── GAME VIEW (hidden until game starts) ── -->
+  <div id="game-view" class="hidden" style="display:flex;flex-direction:column;flex:1;min-height:100vh;">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+      <div class="game-title">NOOBMARINE</div>
+      <div class="top-bar-url hidden" id="top-bar-url" style="display:none !important">
+        <span id="top-bar-url-text">—</span>
+        <button class="url-copy-btn-small" id="btn-copy-url-top">&#x2398;</button>
+      </div>
+      <div class="top-bar-right">
+        <div class="level-label" id="level-label">LEVEL 1</div>
+        <div class="top-bar-actions">
+          <div class="scale-control">
+            <button class="btn scale-btn" id="btn-scale-down" title="Zoom Out">−</button>
+            <span class="scale-label" id="scale-label">100%</span>
+            <button class="btn scale-btn" id="btn-scale-up" title="Zoom In">+</button>
+          </div>
+          <button class="btn music-btn" id="btn-music" title="Toggle Music">&#9835; OFF</button>
+          <button class="btn danger hidden" id="btn-end-game">■ END</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status dashboard -->
+    <div class="status-dashboard">
+
+      <!-- Left half -->
+      <div class="dash-left-half">
+
+      <!-- Left cluster: sonar + mini gauges -->
+      <div class="dash-left-cluster">
+        <!-- Sonar -->
+        <div class="sonar-wrap">
+          <svg class="sonar-svg" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="36" class="sonar-ring"/>
+            <circle cx="40" cy="40" r="24" class="sonar-ring"/>
+            <circle cx="40" cy="40" r="12" class="sonar-ring"/>
+            <line x1="4" y1="40" x2="76" y2="40" class="sonar-cross"/>
+            <line x1="40" y1="4" x2="40" y2="76" class="sonar-cross"/>
+            <line x1="40" y1="40" x2="40" y2="6" class="sonar-sweep-line"/>
+            <circle cx="52" cy="28" r="2" class="sonar-blip sonar-blip-1"/>
+            <circle cx="30" cy="50" r="1.5" class="sonar-blip sonar-blip-2"/>
+            <circle cx="58" cy="45" r="1.5" class="sonar-blip sonar-blip-3"/>
+            <circle cx="40" cy="40" r="5" class="sonar-ping"/>
+          </svg>
+        </div>
+        <!-- Mini indicators stack -->
+        <div class="dash-mini-stack">
+          <!-- Signal bars -->
+          <div class="mini-gauge">
+            <div class="mini-label">SIG</div>
+            <div class="signal-bars">
+              <div class="sig-bar sig-bar-1"></div>
+              <div class="sig-bar sig-bar-2"></div>
+              <div class="sig-bar sig-bar-3"></div>
+              <div class="sig-bar sig-bar-4"></div>
+              <div class="sig-bar sig-bar-5"></div>
+            </div>
+          </div>
+          <!-- Status LEDs -->
+          <div class="mini-gauge">
+            <div class="mini-label">SYS</div>
+            <div class="led-row">
+              <span class="led led-on"></span>
+              <span class="led led-on"></span>
+              <span class="led led-on"></span>
+              <span class="led led-warn"></span>
+            </div>
+          </div>
+          <!-- Mini waveform -->
+          <div class="mini-gauge">
+            <div class="mini-label">HYD</div>
+            <svg class="mini-wave-svg" viewBox="0 0 50 16" preserveAspectRatio="none">
+              <polyline id="mini-wave-1" class="mini-wave-line" points=""/>
+            </svg>
+          </div>
+          <!-- Mini arc gauge -->
+          <div class="mini-gauge">
+            <div class="mini-label">PWR</div>
+            <svg class="mini-arc-svg" viewBox="0 0 30 18">
+              <path d="M3,16 A12,12 0 0,1 27,16" class="mini-arc-bg"/>
+              <path d="M3,16 A12,12 0 0,1 27,16" class="mini-arc-fill" id="mini-arc-pwr"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Left filler: spectrum + compass + dot matrix -->
+      <div class="dash-filler dash-filler-left">
+        <!-- Spectrum analyzer -->
+        <div class="spectrum-analyzer" id="spectrum-bars">
+          <div class="spec-bar" style="--h:40%"></div>
+          <div class="spec-bar" style="--h:70%"></div>
+          <div class="spec-bar" style="--h:55%"></div>
+          <div class="spec-bar" style="--h:85%"></div>
+          <div class="spec-bar" style="--h:45%"></div>
+          <div class="spec-bar" style="--h:65%"></div>
+          <div class="spec-bar" style="--h:30%"></div>
+          <div class="spec-bar" style="--h:75%"></div>
+        </div>
+        <!-- Mini compass -->
+        <div class="mini-compass">
+          <svg viewBox="0 0 40 40" class="compass-svg-mini">
+            <circle cx="20" cy="20" r="17" class="compass-ring-mini"/>
+            <line x1="20" y1="3" x2="20" y2="8" class="compass-tick-mini"/>
+            <line x1="20" y1="32" x2="20" y2="37" class="compass-tick-mini"/>
+            <line x1="3" y1="20" x2="8" y2="20" class="compass-tick-mini"/>
+            <line x1="32" y1="20" x2="37" y2="20" class="compass-tick-mini"/>
+            <line x1="20" y1="20" x2="20" y2="6" class="compass-needle-mini"/>
+          </svg>
+        </div>
+        <!-- Dot matrix grid -->
+        <div class="dot-matrix" id="dot-matrix-1">
+          <span class="dm-dot"></span><span class="dm-dot on"></span><span class="dm-dot"></span><span class="dm-dot on"></span>
+          <span class="dm-dot on"></span><span class="dm-dot"></span><span class="dm-dot on"></span><span class="dm-dot"></span>
+          <span class="dm-dot"></span><span class="dm-dot on"></span><span class="dm-dot"></span><span class="dm-dot on"></span>
+          <span class="dm-dot on"></span><span class="dm-dot"></span><span class="dm-dot on"></span><span class="dm-dot"></span>
+        </div>
+      </div>
+
+      </div><!-- /dash-left-half -->
+
+      <!-- Center: Timer ring + HP -->
+      <div class="dash-center">
+        <div class="timer-ring-wrap">
+          <svg class="timer-ring" viewBox="0 0 100 100">
+            <circle class="timer-ring-bg" cx="50" cy="50" r="42"/>
+            <circle class="timer-ring-progress" id="timer-ring-progress" cx="50" cy="50" r="42"
+              stroke-dasharray="263.89" stroke-dashoffset="0"
+              transform="rotate(-90 50 50)"/>
+          </svg>
+          <div class="timer-ring-text" id="timer-display">90</div>
+          <div class="timer-ring-label">T-MINUS</div>
+        </div>
+        <div class="dash-center-right">
+          <div class="hp-compact">
+            <div class="health-bar-container">
+              <div class="health-bar-fill" id="hp-bar" style="width:100%"></div>
+            </div>
+            <div class="hp-number" id="hp-number">100 HP</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right half -->
+      <div class="dash-right-half">
+
+      <!-- Right filler: crosshair + segments + ticker -->
+      <div class="dash-filler dash-filler-right">
+        <!-- Segmented level indicators -->
+        <div class="segment-stack">
+          <div class="seg-row"><div class="seg-cell on"></div><div class="seg-cell on"></div><div class="seg-cell on"></div><div class="seg-cell on"></div><div class="seg-cell dim"></div></div>
+          <div class="seg-row"><div class="seg-cell on"></div><div class="seg-cell on"></div><div class="seg-cell on"></div><div class="seg-cell dim"></div><div class="seg-cell dim"></div></div>
+          <div class="seg-row"><div class="seg-cell on"></div><div class="seg-cell on"></div><div class="seg-cell on"></div><div class="seg-cell on"></div><div class="seg-cell on"></div></div>
+        </div>
+        <!-- Crosshair / target reticle -->
+        <div class="crosshair-wrap">
+          <svg viewBox="0 0 40 40" class="crosshair-svg">
+            <circle cx="20" cy="20" r="14" class="xhair-ring"/>
+            <circle cx="20" cy="20" r="7" class="xhair-ring xhair-inner"/>
+            <line x1="20" y1="2" x2="20" y2="12" class="xhair-line"/>
+            <line x1="20" y1="28" x2="20" y2="38" class="xhair-line"/>
+            <line x1="2" y1="20" x2="12" y2="20" class="xhair-line"/>
+            <line x1="28" y1="20" x2="38" y2="20" class="xhair-line"/>
+            <circle cx="20" cy="20" r="1.5" class="xhair-center"/>
+          </svg>
+        </div>
+        <!-- Data ticker -->
+        <div class="data-ticker">
+          <div class="ticker-line" id="ticker-1">0xA7F2</div>
+          <div class="ticker-line" id="ticker-2">CHK:OK</div>
+          <div class="ticker-line" id="ticker-3">SYN:41</div>
+          <div class="ticker-line" id="ticker-4">BUF:92</div>
+        </div>
+      </div>
+
+      <!-- Right cluster: visual gauges grid -->
+      <div class="dash-right-cluster">
+        <!-- Row of mini arc gauges -->
+        <div class="rc-gauge-row">
+          <div class="rc-gauge">
+            <svg viewBox="0 0 36 22" class="rc-arc-svg">
+              <path d="M4,20 A14,14 0 0,1 32,20" class="rc-arc-bg"/>
+              <path d="M4,20 A14,14 0 0,1 32,20" class="rc-arc-fill rc-arc-anim-1"/>
+            </svg>
+            <div class="rc-gauge-label">DPT</div>
+          </div>
+          <div class="rc-gauge">
+            <svg viewBox="0 0 36 22" class="rc-arc-svg">
+              <path d="M4,20 A14,14 0 0,1 32,20" class="rc-arc-bg"/>
+              <path d="M4,20 A14,14 0 0,1 32,20" class="rc-arc-fill rc-arc-anim-2"/>
+            </svg>
+            <div class="rc-gauge-label">PRS</div>
+          </div>
+          <div class="rc-gauge">
+            <svg viewBox="0 0 36 22" class="rc-arc-svg">
+              <path d="M4,20 A14,14 0 0,1 32,20" class="rc-arc-bg"/>
+              <path d="M4,20 A14,14 0 0,1 32,20" class="rc-arc-fill rc-arc-anim-3"/>
+            </svg>
+            <div class="rc-gauge-label">RCT</div>
+          </div>
+        </div>
+        <!-- Vertical bar meters -->
+        <div class="rc-bars-row">
+          <div class="rc-vbar-wrap">
+            <div class="rc-vbar"><div class="rc-vbar-fill rc-vfill-1"></div></div>
+            <div class="rc-vbar-label">O₂</div>
+          </div>
+          <div class="rc-vbar-wrap">
+            <div class="rc-vbar"><div class="rc-vbar-fill rc-vfill-2"></div></div>
+            <div class="rc-vbar-label">TMP</div>
+          </div>
+          <div class="rc-vbar-wrap">
+            <div class="rc-vbar"><div class="rc-vbar-fill rc-vfill-3"></div></div>
+            <div class="rc-vbar-label">SPD</div>
+          </div>
+          <div class="rc-vbar-wrap">
+            <div class="rc-vbar"><div class="rc-vbar-fill rc-vfill-4"></div></div>
+            <div class="rc-vbar-label">BAL</div>
+          </div>
+          <div class="rc-vbar-wrap">
+            <div class="rc-vbar"><div class="rc-vbar-fill rc-vfill-5"></div></div>
+            <div class="rc-vbar-label">HDG</div>
+          </div>
+        </div>
+        <!-- Bottom: LED status row + mini waveform -->
+        <div class="rc-bottom-row">
+          <div class="rc-leds">
+            <span class="led led-on"></span><span class="led led-on"></span><span class="led led-on"></span>
+            <span class="led led-on"></span><span class="led led-warn"></span><span class="led led-on"></span>
+          </div>
+          <svg class="rc-mini-wave" viewBox="0 0 60 14" preserveAspectRatio="none">
+            <polyline id="rc-wave-line" class="mini-wave-line" points=""/>
+          </svg>
+        </div>
+      </div>
+
+      </div><!-- /dash-right-half -->
+    </div>
+
+    <!-- HUD Row 2: decorative panels -->
+    <div class="hud-row2">
+      <!-- Depth gauge -->
+      <div class="hud-panel">
+        <div class="hud-panel-label">DEPTH</div>
+        <svg class="hud-depth-svg" viewBox="0 0 30 50">
+          <rect x="10" y="2" width="10" height="46" rx="1" class="hud-bar-bg"/>
+          <rect x="10" y="2" width="10" height="46" rx="1" class="hud-depth-fill"/>
+          <line x1="8" y1="25" x2="22" y2="25" class="hud-tick"/>
+          <line x1="9" y1="13" x2="21" y2="13" class="hud-tick"/>
+          <line x1="9" y1="37" x2="21" y2="37" class="hud-tick"/>
+        </svg>
+        <div class="hud-panel-val" data-fluct="depth">-240m</div>
+      </div>
+      <!-- Compass -->
+      <div class="hud-panel">
+        <div class="hud-panel-label">HEADING</div>
+        <svg class="hud-compass-svg" viewBox="0 0 50 50">
+          <circle cx="25" cy="25" r="22" class="hud-compass-ring"/>
+          <text x="25" y="8" class="hud-compass-dir">N</text>
+          <text x="25" y="47" class="hud-compass-dir">S</text>
+          <text x="4" y="28" class="hud-compass-dir">W</text>
+          <text x="46" y="28" class="hud-compass-dir">E</text>
+          <line x1="25" y1="25" x2="25" y2="7" class="hud-compass-needle"/>
+        </svg>
+        <div class="hud-panel-val" data-fluct="heading">047°</div>
+      </div>
+      <!-- Pressure graph -->
+      <div class="hud-panel hud-panel-wide">
+        <div class="hud-panel-label">HULL PRESSURE</div>
+        <svg class="hud-graph-svg" viewBox="0 0 80 35" preserveAspectRatio="none">
+          <polyline id="pressure-graph" class="hud-graph-line" points=""/>
+        </svg>
+      </div>
+      <!-- O2 arc -->
+      <div class="hud-panel">
+        <div class="hud-panel-label">O₂ SUPPLY</div>
+        <svg class="hud-arc-svg" viewBox="0 0 50 50">
+          <circle cx="25" cy="25" r="20" class="hud-arc-bg"/>
+          <circle cx="25" cy="25" r="20" class="hud-arc-fill" id="o2-arc"
+            stroke-dasharray="125.66" stroke-dashoffset="12.57"
+            transform="rotate(-90 25 25)"/>
+        </svg>
+        <div class="hud-panel-val" data-fluct="o2">92%</div>
+      </div>
+      <!-- Reactor bars -->
+      <div class="hud-panel">
+        <div class="hud-panel-label">REACTOR</div>
+        <div class="hud-reactor-bars">
+          <div class="hud-rbar"><div class="hud-rbar-fill hud-rbar-1"></div></div>
+          <div class="hud-rbar"><div class="hud-rbar-fill hud-rbar-2"></div></div>
+          <div class="hud-rbar"><div class="hud-rbar-fill hud-rbar-3"></div></div>
+        </div>
+        <div class="hud-panel-val" data-fluct="reactor">98.2%</div>
+      </div>
+      <!-- Coolant temp -->
+      <div class="hud-panel">
+        <div class="hud-panel-label">COOLANT</div>
+        <svg class="hud-thermo-svg" viewBox="0 0 20 50">
+          <rect x="7" y="2" width="6" height="38" rx="3" class="hud-bar-bg"/>
+          <rect x="7" y="20" width="6" height="20" rx="3" class="hud-thermo-fill"/>
+          <circle cx="10" cy="44" r="5" class="hud-thermo-bulb"/>
+        </svg>
+        <div class="hud-panel-val" data-fluct="temp">4.2°C</div>
+      </div>
+    </div>
+
+    <!-- Crew status strip -->
+    <div class="crew-strip" id="crew-strip"></div>
+
+    <!-- Task list -->
+    <div class="tasks-section">
+      <div class="tasks-header">
+        <span>ACTIVE ORDERS</span>
+        <span class="tasks-count" id="tasks-count">0/0 COMPLETE</span>
+      </div>
+      <ul class="task-list" id="task-list">
+        <!-- Tasks injected here -->
+      </ul>
+    </div>
+
+    <!-- Action bar -->
+    <div class="action-bar">
+      <button class="btn primary hidden" id="btn-next-round">
+        ▶ NEXT LEVEL
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ── LEVEL INTERMISSION OVERLAY ── -->
+  <div id="intermission-overlay" class="hidden">
+    <div class="intermission-title" id="intermission-title">LEVEL COMPLETE</div>
+    <div style="color:var(--text-dim);font-size:0.85rem;margin:8px 0 16px;">
+      NEXT: LEVEL <span id="intermission-next-level">2</span>
+    </div>
+
+    <!-- Stats row -->
+    <div class="intermission-stats" id="intermission-stats"></div>
+
+    <div style="width:100%;max-width:360px;">
+      <div style="font-size:0.65rem;color:var(--text-muted);letter-spacing:0.2em;margin-bottom:8px;">
+        CREW MANIFEST
+      </div>
+      <ul id="intermission-crew-list"></ul>
+      <div style="font-size:0.6rem;color:var(--text-muted);margin-top:12px;text-align:center;">
+        New crew can join now. Share the URL.
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;justify-content:center;">
+      <button class="btn primary" id="btn-continue-level">▶ CONTINUE TO NEXT LEVEL</button>
+      <button class="btn danger" id="btn-end-game-intermission">■ END MISSION</button>
+    </div>
+  </div>
+
+  <!-- ── ROUND END OVERLAY ── -->
+  <div id="round-end-overlay" class="hidden">
+    <div class="round-end-title" id="round-end-title">ROUND COMPLETE</div>
+    <div class="round-end-hp-delta" id="round-end-hp-delta"></div>
+    <div class="round-end-missed" id="round-end-missed"></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+      <button class="btn primary" id="btn-next-round-overlay">▶ NEXT LEVEL</button>
+      <button class="btn danger" id="btn-end-game-roundend">■ END MISSION</button>
+    </div>
+  </div>
+
+  <!-- ── GAME OVER OVERLAY ── -->
+  <div id="gameover-overlay" class="hidden">
+    <div class="gameover-title">HULL BREACH</div>
+    <div class="gameover-subtitle">THE VESSEL HAS BEEN LOST</div>
+    <div class="gameover-level" id="gameover-level"></div>
+    <button class="btn primary" id="btn-end-game-gameover" style="margin-top:16px;">RETURN TO LOBBY</button>
+  </div>
+
+  <script src="/js/socket.js"></script>
+  <script src="/js/game-data.js"></script>
+  <script src="/js/audio.js"></script>
+  <script src="/js/qrcode-mini.js"></script>
+  <script src="/js/captain.js"></script>
+</body>
+</html>
