@@ -793,25 +793,32 @@ body {
   margin-bottom: 24px;
 }
 
-.crew-intermission-box {
-  width: 100%;
-  max-width: 300px;
-  padding: 16px 20px;
+.crew-intermission-stats {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.crew-intermission-stat {
+  padding: 10px 16px;
   border: 1px solid var(--border-dim);
   background: rgba(0, 26, 14, 0.6);
+  text-align: center;
+  min-width: 90px;
 }
 
-.crew-intermission-label {
-  font-size: 0.6rem;
+.crew-intermission-stat-label {
+  font-size: 0.5rem;
   color: var(--text-muted);
   letter-spacing: 0.15em;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
-.crew-intermission-status {
-  font-size: 0.9rem;
-  color: var(--green);
-  text-shadow: 0 0 8px var(--green);
+.crew-intermission-stat-value {
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
 }
 
 .crew-intermission-waiting {

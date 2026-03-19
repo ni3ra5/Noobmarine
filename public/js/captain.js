@@ -259,14 +259,19 @@ const timerPlusBtn = document.getElementById('timer-plus');
 
 function updateTimerSetting() {
   const val = DEFAULT_TIMER + timerOffset;
-  if (timerSettingEl) timerSettingEl.textContent = val + 's';
+  if (timerSettingEl) {
+    timerSettingEl.textContent = val + 's';
+    const warn = timerOffset < -20 || timerOffset > 20;
+    timerSettingEl.style.color = warn ? 'var(--amber)' : 'var(--green)';
+    timerSettingEl.style.textShadow = warn ? '0 0 8px var(--amber)' : '0 0 8px var(--green)';
+  }
 }
 
 timerMinusBtn?.addEventListener('click', () => {
-  if (timerOffset > -20) { timerOffset -= 5; updateTimerSetting(); }
+  if (DEFAULT_TIMER + timerOffset - 5 >= 5) { timerOffset -= 5; updateTimerSetting(); }
 });
 timerPlusBtn?.addEventListener('click', () => {
-  if (timerOffset < 20) { timerOffset += 5; updateTimerSetting(); }
+  timerOffset += 5; updateTimerSetting();
 });
 
 btnStartGame.addEventListener('click', () => {
