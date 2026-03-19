@@ -183,7 +183,7 @@ body {
   padding: 3px 6px;
   justify-content: center;
   min-width: 62px;
-  opacity: 0.55;
+  opacity: 0.35;
 }
 
 .mini-gauge {
@@ -388,7 +388,7 @@ body {
   justify-content: center;
   flex-shrink: 0;
   min-width: 140px;
-  opacity: 0.55;
+  opacity: 0.35;
 }
 
 /* Arc gauge row */
@@ -511,7 +511,7 @@ body {
   padding: 6px 10px;
   flex: 1;
   min-width: 0;
-  opacity: 0.45;
+  opacity: 0.3;
   overflow: hidden;
 }
 
@@ -526,7 +526,7 @@ body {
   width: 5px;
   height: var(--h, 50%);
   background: linear-gradient(to top, var(--green-dark), var(--green));
-  opacity: 0.7;
+  opacity: 0.5;
   transition: height 0.8s ease;
 }
 
@@ -613,7 +613,7 @@ body {
 .xhair-line {
   stroke: var(--green);
   stroke-width: 0.8;
-  opacity: 0.6;
+  opacity: 0.4;
 }
 .xhair-center {
   fill: var(--green);

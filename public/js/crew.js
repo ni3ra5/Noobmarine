@@ -232,6 +232,10 @@ NM.on('game_state', (msg) => {
   if (msg.phase === 'playing' && Object.keys(myTaskMap).length === 0 && Object.keys(controlInstances).length > 0) {
     NM.send('request_tasks', { crewId: myCrewId });
   }
+  // Restore level-complete overlay on rejoin during intermission
+  if (msg.phase === 'level_intermission') {
+    showIntermission(msg.level, msg.level + 1, msg.intermissionStats);
+  }
 });
 
 NM.on('timer_tick', (msg) => {
@@ -341,21 +345,33 @@ function showCrewLevelEnd(msg) {
 }
 
 // ── Level complete (intermission) ─────────────────────────────────────────────
+function showIntermission(level, nextLevel, stats) {
+  controlGrid.classList.add('hidden');
+  crewRoundEnd.classList.add('hidden');
+  roundNotice.classList.remove('show');
+
+  const titleEl = document.getElementById('crew-intermission-title');
+  const nextEl = document.getElementById('crew-intermission-next');
+  if (titleEl) titleEl.textContent = `LEVEL ${level} COMPLETE`;
+  if (nextEl) nextEl.textContent = `NEXT: LEVEL ${nextLevel}`;
+
+  if (stats) {
+    const hpEl = document.getElementById('crew-stat-hp');
+    const compEl = document.getElementById('crew-stat-completed');
+    const failEl = document.getElementById('crew-stat-failed');
+    if (hpEl) hpEl.textContent = `${stats.hp} HP`;
+    if (compEl) compEl.textContent = `${stats.completed}/${stats.total}`;
+    if (failEl) failEl.textContent = stats.failed;
+  }
+
+  crewLevelComplete.classList.remove('hidden');
+  Object.values(controlInstances).forEach(inst => inst.setActive(false));
+}
+
 NM.on('level_complete', (msg) => {
   clearClientTimer();
   NMAudio.stopAmbient();
-  crewRoundEnd.classList.add('hidden');
-  roundNotice.classList.remove('show');
-  controlGrid.classList.add('hidden');
-
-  // Show fullscreen intermission overlay
-  const titleEl = document.getElementById('crew-intermission-title');
-  const nextEl = document.getElementById('crew-intermission-next');
-  if (titleEl) titleEl.textContent = `LEVEL ${msg.level} COMPLETE`;
-  if (nextEl) nextEl.textContent = `NEXT: LEVEL ${msg.level + 1}`;
-  crewLevelComplete.classList.remove('hidden');
-
-  Object.values(controlInstances).forEach(inst => inst.setActive(false));
+  showIntermission(msg.level, msg.nextLevel || msg.level + 1, { hp: msg.hp, completed: msg.completed, total: msg.total, failed: msg.failed });
   myTaskMap = {};
 });
 

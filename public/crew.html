@@ -72,9 +72,19 @@
   <div id="crew-level-complete" class="hidden">
     <div class="crew-intermission-title" id="crew-intermission-title">LEVEL COMPLETE</div>
     <div class="crew-intermission-next" id="crew-intermission-next">NEXT: LEVEL 2</div>
-    <div class="crew-intermission-box">
-      <div class="crew-intermission-label">STATUS</div>
-      <div class="crew-intermission-status">ALL SYSTEMS NOMINAL</div>
+    <div class="crew-intermission-stats" id="crew-intermission-stats">
+      <div class="crew-intermission-stat">
+        <div class="crew-intermission-stat-label">HULL INTEGRITY</div>
+        <div class="crew-intermission-stat-value" id="crew-stat-hp" style="color:var(--green)">—</div>
+      </div>
+      <div class="crew-intermission-stat">
+        <div class="crew-intermission-stat-label">COMPLETED</div>
+        <div class="crew-intermission-stat-value" id="crew-stat-completed" style="color:var(--amber)">—</div>
+      </div>
+      <div class="crew-intermission-stat">
+        <div class="crew-intermission-stat-label">FAILED</div>
+        <div class="crew-intermission-stat-value" id="crew-stat-failed" style="color:var(--red)">—</div>
+      </div>
     </div>
     <div class="crew-intermission-waiting">AWAITING CAPTAIN'S ORDERS</div>
   </div>

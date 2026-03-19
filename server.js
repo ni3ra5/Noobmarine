@@ -235,7 +235,7 @@ function startGame(timerOffset) {
 function startLevel(level) {
   room.level = level;
   const baseTimer = 90 + (room.timerOffset || 0);
-  room.timerSeconds = Math.max(30, baseTimer - (level - 1) * 10);
+  room.timerSeconds = Math.max(5, baseTimer - (level - 1) * 10);
   const shuffledNames = shuffle([...CONTROL_NAMES]);
 
   room.crew.forEach((member, si) => {
@@ -304,7 +304,10 @@ function endLevel() {
     broadcast({ type: 'game_over', reason: 'hull_breach', finalHp: 0 });
   } else {
     room.phase = 'level_intermission';
-    broadcast({ type: 'level_complete', level: room.level, nextLevel: room.level + 1, crew: room.crew.map(s => ({ name: s.name, crewId: s.crewId })) });
+    const doneTasks = room.tasks.filter(t => t.done).length;
+    const totalTasks = room.tasks.length;
+    room.intermissionStats = { hp: room.hp, completed: doneTasks, total: totalTasks, failed: failedTasks.length };
+    broadcast({ type: 'level_complete', level: room.level, nextLevel: room.level + 1, hp: room.hp, completed: doneTasks, total: totalTasks, failed: failedTasks.length, crew: room.crew.map(s => ({ name: s.name, crewId: s.crewId })) });
     broadcastLobbyState();
   }
 }
@@ -344,6 +347,7 @@ function handleJoin(ws, msg) {
           tasks: room.tasks.map(t => ({ taskId: t.taskId, crewId: t.crewId, instruction: t.instruction, done: t.done })),
           players: room.crew.map(s => ({ name: s.name, crewId: s.crewId })),
           crewCount: room.crew.length,
+          intermissionStats: room.intermissionStats || null,
         });
         // Restore music state
         if (room.musicOn) send(ws, { type: 'music_toggle', on: true });
