@@ -40,7 +40,7 @@ Think **"Keep Talking and Nobody Explodes"** meets **"Spaceteam"** - but on a su
 
 ```bash
 # Install
-git clone https://github.com/YOUR_USERNAME/Noobmarine.git
+git clone https://github.com/ni3ra5/Noobmarine.git
 cd Noobmarine
 npm install
 
@@ -81,7 +81,7 @@ CAPTAIN (laptop)                     CREW (phones)
 - **Captain** sees ALL tasks for ALL crew members
 - **Crew** sees ONLY their 8 controls (no task instructions)
 - Communication is **verbal** - shouting across the room is the fun part
-- Each level has a shorter timer - difficulty escalates until the submarine sinks
+- Each level has a shorter timer (captain can adjust the base time) - difficulty escalates until the submarine sinks
 
 ---
 
@@ -162,7 +162,7 @@ Noobmarine/
 | `/` | Homepage - host game or join as crew |
 | `/captain.html` | Captain's bridge - QR code, crew cards, game HUD |
 | `/crew.html` | Crew station - name input, control panel |
-| `/controls.html` | Interactive control type reference (22 types) |
+| `/controls.html` | Interactive control type reference (25 types) |
 | `/api/info` | Server IP/port (for QR code) |
 | `/api/status` | Current game status |
 
@@ -174,7 +174,7 @@ Noobmarine/
 2. **Level 1** (90s timer) - Complete all tasks before time runs out
 3. **Level 2** (80s timer) - New controls, new tasks, less time
 4. **Level 3** (70s timer) - Pressure mounts...
-5. **Level N** (30s minimum) - Until HP reaches 0
+5. **Level N** (5s minimum) - Until HP reaches 0
 
 Each failed task costs **10 HP**. Submarine starts at **100 HP**.
 
