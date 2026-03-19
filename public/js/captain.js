@@ -124,6 +124,10 @@ document.getElementById('btn-end-game-gameover')?.addEventListener('click', () =
 });
 
 NM.on('room_reset', () => {
+  clearClientTimer();
+  NMAudio.stopAlarm();
+  NMAudio.stopAmbient();
+  NMAudio.stopMusic();
   gameView.classList.add('hidden');
   gameView.style.display = 'none';
   lobbyView.classList.remove('hidden');
