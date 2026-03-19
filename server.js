@@ -457,9 +457,16 @@ wss.on('connection', ws => {
 
       case 'end_game':
         if (ws !== room.captain) break;
-        broadcast({ type: 'captain_left' });
-        resetRoom();
-        room.captain = ws;
+        clearInterval(room.timerInterval);
+        room.phase = 'lobby';
+        room.hp = 100;
+        room.level = 1;
+        room.tasks = [];
+        room.controlLayouts = {};
+        room.musicOn = false;
+        room.intermissionStats = null;
+        taskIdCounter = 0;
+        broadcast({ type: 'mission_ended' });
         send(ws, { type: 'room_reset' });
         broadcastLobbyState();
         break;

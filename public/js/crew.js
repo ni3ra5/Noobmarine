@@ -438,6 +438,25 @@ NM.on('game_over', () => {
   `);
 });
 
+// ── Mission ended (return to lobby) ──────────────────────────────────────────
+NM.on('mission_ended', () => {
+  clearClientTimer();
+  NMAudio.stopAlarm();
+  NMAudio.stopAmbient();
+  NMAudio.stopMusic();
+  controlGrid.classList.add('hidden');
+  crewRoundEnd.classList.add('hidden');
+  crewLevelComplete.classList.add('hidden');
+  roundNotice.classList.remove('show');
+  // Remove any game-over overlay
+  document.querySelectorAll('[style*="position:fixed"][style*="z-index:1000"]').forEach(el => el.remove());
+  crewLobby.classList.remove('hidden');
+  Object.values(controlInstances).forEach(inst => inst.setActive(false));
+  controlInstances = {};
+  myTaskMap = {};
+  lobbyStatus.textContent = 'MISSION ENDED — AWAITING NEW ORDERS';
+});
+
 // ── Captain left ──────────────────────────────────────────────────────────────
 NM.on('captain_left', () => {
   clearClientTimer();
