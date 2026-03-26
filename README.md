@@ -30,7 +30,7 @@ Think **"Keep Talking and Nobody Explodes"** meets **"Spaceteam"** - but on a su
 - **No app install needed** - crew joins by scanning a QR code
 - **No accounts, no login** - just run and play
 - **PWA support** - installable on phones for fullscreen experience
-- **11 interactive control types** - toggles, dials, sliders, keypads, and more
+- **22 interactive control types** - toggles, dials, sliders, keypads, and more
 - **Procedural audio** - all game sounds generated in real-time
 - **Cold War CRT aesthetic** - green-on-black submarine terminal theme
 
@@ -40,7 +40,7 @@ Think **"Keep Talking and Nobody Explodes"** meets **"Spaceteam"** - but on a su
 
 ```bash
 # Install
-git clone https://github.com/YOUR_USERNAME/Noobmarine.git
+git clone https://github.com/ni3ra5/Noobmarine.git
 cd Noobmarine
 npm install
 
@@ -81,13 +81,13 @@ CAPTAIN (laptop)                     CREW (phones)
 - **Captain** sees ALL tasks for ALL crew members
 - **Crew** sees ONLY their 8 controls (no task instructions)
 - Communication is **verbal** - shouting across the room is the fun part
-- Each level has a shorter timer - difficulty escalates until the submarine sinks
+- Timer scales with task count (captain sets per-task time) - difficulty escalates each level until the submarine sinks
 
 ---
 
 ## Control Types
 
-The game includes 11 interactive control types, each requiring different interactions:
+The game includes 22 interactive control types, each requiring different interactions:
 
 | Control | Interaction | Example Task |
 |---------|-------------|--------------|
@@ -102,8 +102,17 @@ The game includes 11 interactive control types, each requiring different interac
 | Button Sequence | Tap in order | "Enter sequence 3-1-4-2" |
 | Switch Sequence | Flip in order | "Arm switches SW2, SW4, SW1, SW3" |
 | Ring | Drag circular | "Charge REACTOR to 70%" |
-
-Plus 14 additional demo control types available on the controls reference page.
+| Keypad | Tap digit grid | "Enter code 4729" |
+| Directional | Tap direction | "Set BEARING to NORTH" |
+| Rapid Tap | Tap repeatedly | "Pump BALLAST 8 times" |
+| Level Select | Tap level | "Set ALERT to level 4" |
+| Compass | Tap heading | "Set HEADING to NE" |
+| Clock Set | Tap hour | "Set DETONATION to 0900" |
+| Valve Turn | Tap +/- | "Open VALVE to 4 turns" |
+| Combination Lock | Scroll drums | "Set LOCK to 3-7-2" |
+| Fine Tuner | Tap +/- (fine) | "Tune FREQUENCY to 98.4" |
+| Dual Slider | Drag two knobs | "Set TRIM to 30/70" |
+| Range Slider | Tap +/- bounds | "Set RANGE to 20-80" |
 
 ---
 
@@ -142,7 +151,7 @@ Noobmarine/
       crew.css           # Crew control styles
     js/
       socket.js          # WebSocket client (auto-reconnect)
-      controls.js        # 25 control type renderers
+      controls.js        # 30 control type renderers
       captain.js         # Captain UI logic
       crew.js            # Crew UI logic
       audio.js           # Procedural sound effects
@@ -162,7 +171,7 @@ Noobmarine/
 | `/` | Homepage - host game or join as crew |
 | `/captain.html` | Captain's bridge - QR code, crew cards, game HUD |
 | `/crew.html` | Crew station - name input, control panel |
-| `/controls.html` | Interactive control type reference (22 types) |
+| `/controls.html` | Interactive control type reference (25 types) |
 | `/api/info` | Server IP/port (for QR code) |
 | `/api/status` | Current game status |
 
@@ -171,10 +180,10 @@ Noobmarine/
 ## Game Flow
 
 1. **Lobby** - Captain hosts, crew joins via QR
-2. **Level 1** (90s timer) - Complete all tasks before time runs out
-3. **Level 2** (80s timer) - New controls, new tasks, less time
-4. **Level 3** (70s timer) - Pressure mounts...
-5. **Level N** (30s minimum) - Until HP reaches 0
+2. **Level 1** (10s per task) - Complete all tasks before time runs out
+3. **Level 2** (9s per task) - New controls, new tasks, less time per task
+4. **Level 3** (8s per task) - Pressure mounts...
+5. **Level N** (3s per task minimum) - Until HP reaches 0
 
 Each failed task costs **10 HP**. Submarine starts at **100 HP**.
 

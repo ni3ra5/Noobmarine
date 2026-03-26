@@ -874,7 +874,7 @@ function createColorPicker(control) {
 function createLevelSelect(control) {
   let value = 0; let submitFn = null; let active = false;
   const el = document.createElement('div');
-  el.className = 'ctrl ctrl-level-select';
+  el.className = 'ctrl ctrl-level-select ctrl-wide';
   el.innerHTML = `<div class="ctrl-label">${control.name}</div><div class="ctrl-body"><div class="level-row"></div><div class="ctrl-value-display">—</div></div>`;
   const row = el.querySelector('.level-row');
   const display = el.querySelector('.ctrl-value-display');
