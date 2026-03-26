@@ -924,7 +924,7 @@ body {
 
 .task-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   padding: 8px 10px;
   background: var(--bg-raised);
@@ -968,11 +968,8 @@ body {
   min-width: 0;
 }
 
-.task-crew-id {
-  font-size: 0.65rem;
+.task-ctrl-name {
   color: var(--amber);
-  letter-spacing: 0.1em;
-  margin-bottom: 2px;
 }
 
 .task-text {

@@ -57,12 +57,20 @@ const wss = new WebSocket.Server({ server });
 const CONTROL_TYPES = [
   'toggle', 'button', 'dial', 'h-slider', 'v-slider',
   'multi-slider', 'number-wheel', 'stepper',
-  'btn-sequence', 'sw-sequence', 'ring'
+  'btn-sequence', 'sw-sequence', 'ring',
+  'keypad', 'directional', 'rapid-tap', 'level-select',
+  'compass', 'clock-set', 'valve-turn', 'combination-lock',
+  'fine-tuner', 'dual-slider', 'range-slider',
 ];
 
 const DIAL_SNAPS = [0, 45, 90, 135, 180, 225, 270, 315];
 const SLIDER_SNAPS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 const RING_SNAPS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+const DIRECTIONS = ['UP', 'RIGHT', 'DOWN', 'LEFT'];
+const COMPASS_DIRS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+// Fine tuner: default is 100.0, step is 0.2. Limit to ±4.0 (max 20 taps)
+const FINE_TUNER_SNAPS = [];
+for (let v = 96.0; v <= 104.0; v = Math.round((v + 0.2) * 10) / 10) FINE_TUNER_SNAPS.push(v);
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function shuffle(arr) {
@@ -83,31 +91,66 @@ function generateTargetValue(type) {
     case 'btn-sequence': return shuffle([1, 2, 3, 4]);
     case 'sw-sequence': return shuffle(['SW1', 'SW2', 'SW3', 'SW4']);
     case 'ring': return pick(RING_SNAPS);
+    case 'keypad': return [1,2,3,4].map(() => Math.floor(Math.random() * 9) + 1);
+    case 'directional': return pick(DIRECTIONS);
+    case 'rapid-tap': return Math.floor(Math.random() * 8) + 3; // 3-10
+    case 'level-select': return Math.floor(Math.random() * 5) + 1; // 1-5
+    case 'compass': return pick(COMPASS_DIRS);
+    case 'clock-set': return Math.floor(Math.random() * 12) + 1; // 1-12
+    case 'valve-turn': return Math.floor(Math.random() * 5) + 1; // 1-5
+    case 'combination-lock': return [0,1,2].map(() => Math.floor(Math.random() * 10)); // [0-9,0-9,0-9]
+    case 'fine-tuner': return pick(FINE_TUNER_SNAPS.filter(v => v !== 100.0));
+    case 'dual-slider': return [pick(SLIDER_SNAPS.filter(v => v !== 0)), pick(SLIDER_SNAPS.filter(v => v !== 0))];
+    case 'range-slider': {
+      const lo = pick([0, 10, 20, 30, 40]);
+      const hi = pick([60, 70, 80, 90, 100]);
+      return [lo, hi];
+    }
     default: return 0;
   }
 }
 
 function formatTaskInstruction(controlName, type, targetValue) {
+  const cn = `<span class="task-ctrl-name">${controlName}</span>`;
   switch (type) {
-    case 'toggle': return `Set ${controlName} to ${targetValue}`;
-    case 'button': return `Activate ${controlName}`;
-    case 'dial': return `Set ${controlName} to ${targetValue}°`;
-    case 'h-slider': case 'v-slider': return `Set ${controlName} to ${targetValue}%`;
-    case 'multi-slider': return `Set ${controlName} to ${targetValue.join(', ')}`;
-    case 'number-wheel': return `Set ${controlName} to ${String(targetValue).padStart(2, '0')}`;
-    case 'stepper': return `Set ${controlName} to ${targetValue}`;
-    case 'btn-sequence': return `Enter ${controlName} sequence: ${targetValue.join('-')}`;
-    case 'sw-sequence': return `Arm ${controlName} in order: ${targetValue.join(', ')}`;
-    case 'ring': return `Charge ${controlName} to ${targetValue}%`;
-    default: return `Set ${controlName} to ${targetValue}`;
+    case 'toggle': return `Set ${cn} to ${targetValue}`;
+    case 'button': return `Activate ${cn}`;
+    case 'dial': return `Set ${cn} to ${targetValue}°`;
+    case 'h-slider': case 'v-slider': return `Set ${cn} to ${targetValue}%`;
+    case 'multi-slider': return `Set ${cn} to ${targetValue.join(', ')}`;
+    case 'number-wheel': return `Set ${cn} to ${String(targetValue).padStart(2, '0')}`;
+    case 'stepper': return `Set ${cn} to ${targetValue}`;
+    case 'btn-sequence': return `Enter ${cn} sequence: ${targetValue.join('-')}`;
+    case 'sw-sequence': return `Arm ${cn} in order: ${targetValue.join(', ')}`;
+    case 'ring': return `Charge ${cn} to ${targetValue}%`;
+    case 'keypad': return `Enter ${cn} code: ${targetValue.join('')}`;
+    case 'directional': return `Set ${cn} to ${targetValue}`;
+    case 'rapid-tap': return `Tap ${cn} ${targetValue} times`;
+    case 'level-select': return `Set ${cn} to level ${targetValue}`;
+    case 'compass': return `Set ${cn} heading to ${targetValue}`;
+    case 'clock-set': return `Set ${cn} to ${targetValue} o'clock`;
+    case 'valve-turn': return `Turn ${cn} to ${targetValue} turns`;
+    case 'combination-lock': return `Set ${cn} to ${targetValue.join('-')}`;
+    case 'fine-tuner': return `Tune ${cn} to ${Number(targetValue).toFixed(1)}`;
+    case 'dual-slider': return `Set ${cn} to A:${targetValue[0]}%, B:${targetValue[1]}%`;
+    case 'range-slider': return `Set ${cn} range to ${targetValue[0]}-${targetValue[1]}`;
+    default: return `Set ${cn} to ${targetValue}`;
   }
 }
 
+const ARRAY_TYPES = [
+  'multi-slider', 'btn-sequence', 'sw-sequence',
+  'keypad', 'combination-lock', 'dual-slider', 'range-slider',
+];
+
 function valuesMatch(type, submitted, target) {
-  if (type === 'multi-slider' || type === 'btn-sequence' || type === 'sw-sequence') {
+  if (ARRAY_TYPES.includes(type)) {
     if (!Array.isArray(submitted) || !Array.isArray(target)) return false;
     if (submitted.length !== target.length) return false;
     return submitted.every((v, i) => String(v) === String(target[i]));
+  }
+  if (type === 'fine-tuner') {
+    return Number(submitted).toFixed(1) === Number(target).toFixed(1);
   }
   return String(submitted) === String(target);
 }
@@ -167,9 +210,10 @@ const room = {
   hp: 100,
   level: 1,
   musicOn: false,
-  timerSeconds: 90,
+  perTaskTime: 10,
+  timerSeconds: 80,
   timerInterval: null,
-  timerRemaining: 90,
+  timerRemaining: 80,
   tasks: [],
   controlLayouts: {},
 };
@@ -189,7 +233,7 @@ function broadcastGameState() {
   broadcast({
     type: 'game_state', phase: room.phase, hp: room.hp, level: room.level,
     timerRemaining: room.timerRemaining,
-    tasks: room.tasks.map(t => ({ taskId: t.taskId, crewId: t.crewId, instruction: t.instruction, done: t.done })),
+    tasks: room.tasks.map(t => ({ taskId: t.taskId, instruction: t.instruction, done: t.done })),
     players: room.crew.map(s => ({ name: s.name, crewId: s.crewId })),
     crewCount: room.crew.length,
   });
@@ -224,19 +268,23 @@ function nextCrewId() {
 
 // ─── Game logic ─────────────────────────────────────────────────────────────
 
-function startGame(timerOffset) {
+function startGame(perTaskTime) {
   if (room.crew.length === 0) { send(room.captain, { type: 'error', message: 'Need at least one crew member to start.' }); return; }
   room.hp = 100;
   room.phase = 'playing';
-  room.timerOffset = timerOffset || 0;
+  room.perTaskTime = perTaskTime || 10;
   startLevel(1);
 }
 
 function startLevel(level) {
   room.level = level;
-  const baseTimer = 90 + (room.timerOffset || 0);
-  room.timerSeconds = Math.max(5, baseTimer - (level - 1) * 10);
+  const tasksPerMember = Math.min(8, Math.max(2, Math.ceil(16 / room.crew.length)));
+  const totalTasks = room.crew.length * tasksPerMember;
+  const levelPerTaskTime = Math.max(3, room.perTaskTime - (level - 1));
+  room.timerSeconds = totalTasks * levelPerTaskTime;
   const shuffledNames = shuffle([...CONTROL_NAMES]);
+
+  const shuffledTypes = shuffle([...CONTROL_TYPES]);
 
   room.crew.forEach((member, si) => {
     const controls = [];
@@ -244,7 +292,7 @@ function startLevel(level) {
       controls.push({
         controlId: `${member.crewId}-C${i}`,
         name: shuffledNames[(si * 8 + i) % shuffledNames.length],
-        type: CONTROL_TYPES[(si * 8 + i) % CONTROL_TYPES.length],
+        type: shuffledTypes[(si * 8 + i) % shuffledTypes.length],
       });
     }
     room.controlLayouts[member.crewId] = controls;
@@ -255,7 +303,6 @@ function startLevel(level) {
 
   room.tasks = [];
   room.timerRemaining = room.timerSeconds;
-  const tasksPerMember = Math.min(8, Math.max(2, Math.ceil(16 / room.crew.length)));
 
   room.crew.forEach(member => {
     shuffle([...room.controlLayouts[member.crewId]]).slice(0, tasksPerMember).forEach(ctrl => {
@@ -267,6 +314,8 @@ function startLevel(level) {
       });
     });
   });
+
+  shuffle(room.tasks);
 
   room.crew.forEach(member => {
     const myTasks = room.tasks.filter(t => t.crewId === member.crewId)
@@ -344,7 +393,7 @@ function handleJoin(ws, msg) {
         send(ws, {
           type: 'game_state', phase: room.phase, hp: room.hp, level: room.level,
           timerRemaining: room.timerRemaining,
-          tasks: room.tasks.map(t => ({ taskId: t.taskId, crewId: t.crewId, instruction: t.instruction, done: t.done })),
+          tasks: room.tasks.map(t => ({ taskId: t.taskId, instruction: t.instruction, done: t.done })),
           players: room.crew.map(s => ({ name: s.name, crewId: s.crewId })),
           crewCount: room.crew.length,
           intermissionStats: room.intermissionStats || null,
@@ -425,7 +474,7 @@ wss.on('connection', ws => {
 
       case 'start_game':
         if (ws !== room.captain || room.phase !== 'lobby') break;
-        startGame(msg.timerOffset);
+        startGame(msg.perTaskTime);
         break;
 
       case 'submit_control': {
@@ -503,7 +552,7 @@ wss.on('connection', ws => {
         send(ws, {
           type: 'game_state', phase: room.phase, hp: room.hp, level: room.level,
           timerRemaining: room.timerRemaining,
-          tasks: room.tasks.map(t => ({ taskId: t.taskId, crewId: t.crewId, instruction: t.instruction, done: t.done })),
+          tasks: room.tasks.map(t => ({ taskId: t.taskId, instruction: t.instruction, done: t.done })),
           players: room.crew.map(s => ({ name: s.name, crewId: s.crewId })),
           crewCount: room.crew.length,
         });

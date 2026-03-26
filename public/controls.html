@@ -153,12 +153,8 @@
     }
 
     /* Each live control gets proper sizing */
-    .live-control-grid .ctrl {
-      min-height: 150px;
-    }
     .live-control-grid .ctrl.ctrl-wide {
       grid-column: span 2;
-      min-height: 200px;
     }
 
   </style>
@@ -304,7 +300,7 @@
 
     <!-- Right: live interactive controls -->
     <div class="types-panel">
-      <h2>CONTROL TYPES — INTERACTIVE DEMO (11)</h2>
+      <h2>CONTROL TYPES — INTERACTIVE DEMO (22)</h2>
       <div class="live-control-grid" id="live-controls"></div>
     </div>
 
@@ -326,7 +322,6 @@
       { controlId: 'demo-multislider',  name: 'MULTI-SLIDER',       type: 'multi-slider' },
       { controlId: 'demo-btnseq',       name: 'BUTTON SEQUENCE',    type: 'btn-sequence' },
       { controlId: 'demo-swseq',        name: 'SWITCH SEQUENCE',    type: 'sw-sequence' },
-      // New controls (demo only — not yet in game)
       { controlId: 'demo-keypad',       name: 'CODE ENTRY PAD',     type: 'keypad' },
       { controlId: 'demo-directional',  name: 'DIRECTION SELECTOR', type: 'directional' },
       { controlId: 'demo-rapidtap',     name: 'TAP COUNTER',        type: 'rapid-tap' },
@@ -340,7 +335,7 @@
       { controlId: 'demo-rangeslider',  name: 'RANGE SELECTOR',     type: 'range-slider' },
     ];
 
-    const IN_GAME_TYPES = ['toggle','button','dial','h-slider','v-slider','multi-slider','number-wheel','stepper','btn-sequence','sw-sequence','ring'];
+    const IN_GAME_TYPES = ['toggle','button','dial','h-slider','v-slider','multi-slider','number-wheel','stepper','btn-sequence','sw-sequence','ring','keypad','directional','rapid-tap','level-select','compass','clock-set','valve-turn','combination-lock','fine-tuner','dual-slider','range-slider'];
 
     const grid = document.getElementById('live-controls');
     DEMO_CONTROLS.forEach(ctrl => {

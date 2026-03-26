@@ -255,32 +255,32 @@ function renderCrewStrip() {
 }
 
 // ── Timer setting ────────────────────────────────────────────────────────────
-const DEFAULT_TIMER = 90;
-let timerOffset = 0;
+const MIN_PER_TASK = 3;
+const MAX_PER_TASK = 30;
+let perTaskTime = 10;
 const timerSettingEl = document.getElementById('timer-setting');
 const timerMinusBtn = document.getElementById('timer-minus');
 const timerPlusBtn = document.getElementById('timer-plus');
 
 function updateTimerSetting() {
-  const val = DEFAULT_TIMER + timerOffset;
   if (timerSettingEl) {
-    timerSettingEl.textContent = val + 's';
-    const warn = timerOffset < -20 || timerOffset > 20;
+    timerSettingEl.textContent = perTaskTime + 's';
+    const warn = perTaskTime <= 5 || perTaskTime >= 20;
     timerSettingEl.style.color = warn ? 'var(--amber)' : 'var(--green)';
     timerSettingEl.style.textShadow = warn ? '0 0 8px var(--amber)' : '0 0 8px var(--green)';
   }
 }
 
 timerMinusBtn?.addEventListener('click', () => {
-  if (DEFAULT_TIMER + timerOffset - 5 >= 5) { timerOffset -= 5; updateTimerSetting(); }
+  if (perTaskTime - 1 >= MIN_PER_TASK) { perTaskTime -= 1; updateTimerSetting(); }
 });
 timerPlusBtn?.addEventListener('click', () => {
-  timerOffset += 5; updateTimerSetting();
+  if (perTaskTime + 1 <= MAX_PER_TASK) { perTaskTime += 1; updateTimerSetting(); }
 });
 
 btnStartGame.addEventListener('click', () => {
   NMAudio.init();
-  NM.send('start_game', { timerOffset });
+  NM.send('start_game', { perTaskTime });
 });
 
 // ── Game events ───────────────────────────────────────────────────────────────
@@ -509,7 +509,6 @@ function renderTasks(tasks) {
     li.innerHTML = `
       <div class="task-checkbox">${t.done ? '✓' : ''}</div>
       <div class="task-content">
-        <div class="task-crew-id">⚓ ${t.crewId}</div>
         <div class="task-text">${t.instruction}</div>
       </div>
     `;
