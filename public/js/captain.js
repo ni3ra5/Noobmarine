@@ -133,6 +133,8 @@ NM.on('room_reset', () => {
   NMAudio.stopAlarm();
   NMAudio.stopAmbient();
   NMAudio.stopMusic();
+  musicOn = false;
+  if (btnMusic) { btnMusic.innerHTML = '&#9835; OFF'; btnMusic.classList.remove('active'); }
   gameView.classList.add('hidden');
   gameView.style.display = 'none';
   lobbyView.classList.remove('hidden');
