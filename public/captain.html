@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NOOBMARINE — CAPTAIN</title>
+  <meta name="theme-color" content="#000d08">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/captain.css">
 </head>
@@ -432,5 +437,6 @@
   <script src="/js/audio.js"></script>
   <script src="/js/qrcode-mini.js"></script>
   <script src="/js/captain.js"></script>
+  <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>

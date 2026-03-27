@@ -1,13 +1,20 @@
-const CACHE_NAME = 'noobmarine-v23';
+const CACHE_NAME = 'noobmarine-v24';
 const ASSETS = [
   '/css/theme.css',
   '/css/crew.css',
+  '/css/captain.css',
   '/js/socket.js',
   '/js/game-data.js',
   '/js/controls.js',
   '/js/crew.js',
   '/js/audio.js',
+  '/js/captain.js',
+  '/js/qrcode-mini.js',
+  '/captain.html',
+  '/controls.html',
   '/icon.svg',
+  '/icon-192.png',
+  '/icon-512.png',
   '/manifest.json',
 ];
 
