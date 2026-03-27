@@ -53,27 +53,32 @@ function renderQR() {
 }
 
 function loadServerInfo() {
+  const host = location.hostname;
+  const isLocal = host === 'localhost' || host === '127.0.0.1' || /^(192\.168|10\.|172\.(1[6-9]|2\d|3[01]))/.test(host);
+
+  const apply = (url) => {
+    crewUrl = url;
+    const urlText = document.getElementById('crew-url-text');
+    const topText = document.getElementById('top-bar-url-text');
+    const topChip = document.getElementById('top-bar-url');
+    if (urlText) urlText.textContent = crewUrl;
+    if (topText) topText.textContent = crewUrl;
+    if (topChip) topChip.classList.remove('hidden');
+    renderQR();
+    setTimeout(renderQR, 500);
+  };
+
+  if (!isLocal) {
+    // Deployed on the internet — use the public origin directly
+    apply(window.location.origin + '/crew.html');
+    return;
+  }
+
+  // Local network — fetch server's LAN IP for crew devices
   fetch('/api/info')
     .then(r => r.json())
-    .then(info => {
-      crewUrl = `http://${info.ip}:${info.port}/crew.html`;
-      const urlText  = document.getElementById('crew-url-text');
-      const topText  = document.getElementById('top-bar-url-text');
-      const topChip  = document.getElementById('top-bar-url');
-      if (urlText)  urlText.textContent = crewUrl;
-      if (topText)  topText.textContent = crewUrl;
-      if (topChip)  topChip.classList.remove('hidden');
-      renderQR();
-      // Retry QR after short delay in case canvas wasn't ready
-      setTimeout(renderQR, 500);
-    })
-    .catch(() => {
-      crewUrl = window.location.origin + '/crew.html';
-      const urlText = document.getElementById('crew-url-text');
-      if (urlText) urlText.textContent = crewUrl;
-      renderQR();
-      setTimeout(renderQR, 500);
-    });
+    .then(info => apply(`http://${info.ip}:${info.port}/crew.html`))
+    .catch(() => apply(window.location.origin + '/crew.html'));
 }
 
 // ── Copy URL logic (works in both HTTP and HTTPS contexts) ────────────────────
