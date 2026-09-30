@@ -1,4 +1,4 @@
-const CACHE_NAME = 'noobmarine-v24';
+const CACHE_NAME = 'noobmarine-v25';
 const ASSETS = [
   '/css/theme.css',
   '/css/crew.css',

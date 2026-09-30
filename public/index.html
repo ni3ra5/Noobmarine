@@ -133,6 +133,8 @@
 
     NM.on('joined', (msg) => {
       if (msg.role === 'captain') {
+        // captain.html opens a new socket; the token lets it take over this captain slot
+        try { sessionStorage.setItem('nm_captain_token', msg.captainToken); } catch {}
         window.location.href = '/captain.html';
       }
     });
@@ -169,7 +171,9 @@
     });
 
     btnCaptain.addEventListener('click', () => {
-      NM.send('join_game', { role: 'captain', playerName: 'CAPTAIN' });
+      let captainToken = null;
+      try { captainToken = sessionStorage.getItem('nm_captain_token'); } catch {}
+      NM.send('join_game', { role: 'captain', playerName: 'CAPTAIN', captainToken });
     });
   </script>
   <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>

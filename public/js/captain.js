@@ -149,8 +149,12 @@ NM.on('room_reset', () => {
 // ── Auto-join as captain on connect ──────────────────────────────────────────
 loadServerInfo();
 
+function getCaptainToken() {
+  try { return sessionStorage.getItem('nm_captain_token'); } catch { return null; }
+}
+
 function joinAsCaptain() {
-  NM.send('join_game', { role: 'captain', playerName: 'CAPTAIN' });
+  NM.send('join_game', { role: 'captain', playerName: 'CAPTAIN', captainToken: getCaptainToken() });
 }
 
 NM.on('_connected', () => {
@@ -162,6 +166,7 @@ if (NM.isConnected()) joinAsCaptain();
 
 NM.on('joined', (msg) => {
   if (msg.role === 'captain') {
+    try { sessionStorage.setItem('nm_captain_token', msg.captainToken); } catch {}
     // Show QR
     if (crewUrl) {
       const urlText = document.getElementById('crew-url-text');
@@ -436,6 +441,12 @@ NM.on('game_over', (msg) => {
 });
 
 NM.on('captain_left', () => {
+  window.location.href = '/';
+});
+
+// Another tab with this captain's token took over the session
+NM.on('captain_replaced', () => {
+  try { sessionStorage.removeItem('nm_captain_token'); } catch {}
   window.location.href = '/';
 });
 

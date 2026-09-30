@@ -3,8 +3,13 @@ const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const crypto = require('crypto');
 
 const PORT = process.env.PORT || 3000;
+// How long the captain slot is held after the captain's socket drops (page navigation,
+// network blip, phone locked) before the session is torn down.
+const CAPTAIN_GRACE_MS = 30000;
+const HEARTBEAT_MS = 25000;
 
 // ─── Determine local IP at startup ──────────────────────────────────────────
 let localIP = 'localhost';
@@ -205,6 +210,8 @@ let taskIdCounter = 0;
 const room = {
   sessionName: '',
   captain: null,
+  captainToken: null,
+  captainGraceTimer: null,
   crew: [],
   phase: 'lobby',
   hp: 100,
@@ -367,10 +374,15 @@ function handleJoin(ws, msg) {
   const { role, playerName, sessionName } = msg;
 
   if (role === 'captain') {
-    if (room.captain !== null) { send(ws, { type: 'error', message: 'Captain slot already taken.' }); return; }
+    if (room.captain !== null) {
+      // Same captain coming back on a new socket (index -> captain.html, reconnect, reload)
+      if (msg.captainToken && msg.captainToken === room.captainToken) { resumeCaptain(ws); return; }
+      send(ws, { type: 'error', message: 'Captain slot already taken.' }); return;
+    }
     room.captain = ws;
+    room.captainToken = crypto.randomBytes(16).toString('hex');
     room.sessionName = sessionName || 'GAME';
-    send(ws, { type: 'joined', role: 'captain' });
+    send(ws, { type: 'joined', role: 'captain', captainToken: room.captainToken });
     broadcastLobbyState();
 
   } else if (role === 'crew') {
@@ -424,6 +436,35 @@ function handleJoin(ws, msg) {
   }
 }
 
+function resumeCaptain(ws) {
+  clearTimeout(room.captainGraceTimer);
+  room.captainGraceTimer = null;
+  const old = room.captain;
+  room.captain = ws;
+  if (old && old !== ws) {
+    send(old, { type: 'captain_replaced' });
+    try { old.close(); } catch {}
+  }
+  send(ws, { type: 'joined', role: 'captain', captainToken: room.captainToken });
+  sendLobbyState(ws);
+
+  // Bring a reloaded/reconnected captain page back to the current phase
+  if (room.phase === 'playing') {
+    send(ws, { type: 'level_start', level: room.level });
+    send(ws, {
+      type: 'game_state', phase: room.phase, hp: room.hp, level: room.level,
+      timerRemaining: room.timerRemaining,
+      tasks: room.tasks.map(t => ({ taskId: t.taskId, instruction: t.instruction, done: t.done })),
+      players: room.crew.map(s => ({ name: s.name, crewId: s.crewId })),
+      crewCount: room.crew.length,
+    });
+  } else if (room.phase === 'level_intermission' && room.intermissionStats) {
+    send(ws, { type: 'level_complete', level: room.level, nextLevel: room.level + 1, ...room.intermissionStats, crew: room.crew.map(s => ({ name: s.name, crewId: s.crewId })) });
+  } else if (room.phase === 'gameover') {
+    send(ws, { type: 'game_over', reason: 'hull_breach', finalHp: 0 });
+  }
+}
+
 function resetRoom() {
   clearInterval(room.timerInterval);
   room.crew = [];
@@ -434,14 +475,22 @@ function resetRoom() {
   room.controlLayouts = {};
   room.sessionName = '';
   room.musicOn = false;
+  room.intermissionStats = null;
   taskIdCounter = 0;
 }
 
 function handleDisconnect(ws) {
   if (ws === room.captain) {
-    broadcast({ type: 'captain_left' });
-    resetRoom();
-    room.captain = null;
+    // Hold the slot so the same captain can reclaim it with their token
+    if (room.captainGraceTimer) return;
+    room.captainGraceTimer = setTimeout(() => {
+      room.captainGraceTimer = null;
+      if (room.captain !== ws) return;
+      room.captain = null;
+      room.captainToken = null;
+      broadcast({ type: 'captain_left' });
+      resetRoom();
+    }, CAPTAIN_GRACE_MS);
   } else {
     const idx = room.crew.findIndex(s => s.ws === ws);
     if (idx !== -1) {
@@ -461,6 +510,9 @@ function handleDisconnect(ws) {
 // ─── Connection entry ───────────────────────────────────────────────────────
 
 wss.on('connection', ws => {
+  ws.isAlive = true;
+  ws.on('pong', () => { ws.isAlive = true; });
+
   // Send current lobby state to every new connection
   sendLobbyState(ws);
 
@@ -561,9 +613,21 @@ wss.on('connection', ws => {
     }
   });
 
+  // 'close' always follows 'error', so disconnect is handled once here
   ws.on('close', () => handleDisconnect(ws));
-  ws.on('error', () => handleDisconnect(ws));
+  ws.on('error', () => {});
 });
+
+// Drop half-open sockets (dead phone/laptop connections that never sent a close)
+// so they don't hold the captain slot or a crew seat forever.
+const heartbeat = setInterval(() => {
+  wss.clients.forEach(ws => {
+    if (!ws.isAlive) { ws.terminate(); return; }
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, HEARTBEAT_MS);
+wss.on('close', () => clearInterval(heartbeat));
 
 server.listen(PORT, () => {
   console.log(`\n╔═══════════════════════════════════════╗`);
